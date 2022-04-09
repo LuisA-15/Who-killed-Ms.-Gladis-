@@ -11,7 +11,7 @@ typedef struct sprite_graphics_struct
 {
     Sprite sprite;
     int currentFrame;
-    float deltaFrame;
+    float deltaTime;
     float refreshRate;
 }SpriteGraphics;
 
@@ -19,14 +19,6 @@ typedef struct sprite_graphics_struct
 Sprite LoadSprite(const char *filename, int frameCount);
 SpriteGraphics LoadSpriteGraphics(const char *filename, int frameCount, float refresh);
 SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g);
-int RollDice();
-
-
-int RollDice()
-{
-    int num = GetRandomValue(1, 6);
-    return num;
-}
 
 
 Sprite LoadSprite(const char *filename, int frameCount)
@@ -51,11 +43,11 @@ SpriteGraphics LoadSpriteGraphics(const char *filename, int frameCount, float re
 SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g)
 {
     float elapsed = GetFrameTime();
-    g.deltaFrame += elapsed;
+    g.deltaTime += elapsed;
 
-    if(g.deltaFrame >= g.refreshRate)
+    if(g.deltaTime >= g.refreshRate)
     {
-        g.deltaFrame = 0;
+        g.deltaTime = 0;
         g.currentFrame = (g.currentFrame + 1) % g.sprite.frameCount;
         g.sprite.mask.x = g.sprite.mask.width * g.currentFrame;
     }
