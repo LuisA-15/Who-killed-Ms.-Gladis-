@@ -1,13 +1,11 @@
 #include "raylib.h"
+#include "Animations.h"
+#include "Windows.h"
 
-int main() {
-    InitWindow(600, 500, "Clue Sus");
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        EndDrawing();
-    }
-    CloseWindow();
+int main()
+{
+    SetTargetFPS(30);
+    MainWindow();
     return 0;
 }
