@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdio.h>
 
 typedef struct button_struct {
     Texture2D texture;
@@ -8,7 +9,9 @@ typedef struct button_struct {
     int state; // 1 if pressed down, 0 if not
 }Button;
 
+
 void MainWindow();
+void AboutWindow();
 
 
 void MainWindow()
@@ -16,26 +19,26 @@ void MainWindow()
     InitWindow(600, 500, "Who killed Ms. Gladis?");
     Vector2 mousePoint;
 
-    Texture2D TBLUE = LoadTexture("../Assets/blueSheet.png");
-    Texture2D TYELLOW = LoadTexture("../Assets/yellowSheet.png");
-    Texture2D TRED = LoadTexture("../Assets/redSheet.png");
+    Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
+    Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
+    Texture2D TRed = LoadTexture("../Assets/redSheet.png");
 
     Button start = {
-            TBLUE,
+            TBlue,
             {225, 200},
             {0,94,190, 49},
             {start.position.x, start.position.y, start.mask.width, start.mask.height},
             0
     };
     Button about = {
-            TBLUE,
+            TBlue,
             {225, 260},
             {0,94,190, 49},
             {about.position.x, about.position.y, about.mask.width, about.mask.height},
             0
     };
     Button exit = {
-            TRED,
+            TRed,
             {225, 330},
             {190, 0, 190, 49},
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
@@ -46,7 +49,7 @@ void MainWindow()
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        ClearBackground(GRAY);
+        ClearBackground((Color) {189, 195, 199});
 
         DrawText("Who Killed Ms. Gladis?", 25, 100, 50, BLACK);
 
@@ -65,13 +68,13 @@ void MainWindow()
             {
                 if (CheckCollisionPointRec(mousePoint, start.collision))
                 {
-                    start.texture = TYELLOW;
+                    start.texture = TYellow;
                     start.mask = (Rectangle) {0, 50, 190, 45};
                     start.state = 1;
                 }
                 else if (CheckCollisionPointRec(mousePoint, about.collision))
                 {
-                    about.texture = TYELLOW;
+                    about.texture = TYellow;
                     about.mask = (Rectangle) {0, 50, 190, 45};
                     about.state = 1;
                 }
@@ -96,7 +99,8 @@ void MainWindow()
             {
                 if (about.state)
                 {
-                    ClearBackground(VIOLET);
+                    EndDrawing();
+                    break;
                 }
             }
             else if (CheckCollisionPointRec(mousePoint, exit.collision))
@@ -108,10 +112,10 @@ void MainWindow()
                 }
             }
 
-            start.texture = TBLUE;
+            start.texture = TBlue;
             start.mask = (Rectangle) {0,94,190, 49};
             start.state = 0;
-            about.texture = TBLUE;
+            about.texture = TBlue;
             about.mask = (Rectangle) {0, 94, 190, 49};
             about.state = 0;
             exit.mask = (Rectangle) {190, 0 , 190, 49};
@@ -121,4 +125,54 @@ void MainWindow()
         EndDrawing();
     }
     CloseWindow();
+    if (about.state)
+    {
+        AboutWindow();
+    }
+}
+
+void AboutWindow()
+{
+    InitWindow(400, 500, "Acerca de");
+    Vector2 mousePoint;
+
+    Texture2D TRed = LoadTexture("../Assets/redsheet.png");
+    Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
+
+    Button exit = {
+            TGrey,
+            {350, 450},
+            {186, 433, 36, 36},
+            {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
+            0
+    };
+
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground((Color) {189, 195, 199});
+        DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+
+        mousePoint = GetMousePosition();
+
+        if (CheckCollisionPointRec(mousePoint, exit.collision))
+        {
+            exit.texture = TRed;
+            exit.mask = (Rectangle) {381, 36, 36, 36};
+            if (IsMouseButtonPressed(0))
+            {
+                EndDrawing();
+                break;
+            }
+        }
+        else
+        {
+            exit.texture = TGrey;
+            exit.mask = (Rectangle) {186, 433, 36, 36};
+        }
+
+        EndDrawing();
+    }
+    CloseWindow();
+    MainWindow();
 }

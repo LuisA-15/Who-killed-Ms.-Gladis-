@@ -19,5 +19,7 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     endif()
 endif()
 
+include_directories(Header)
+
 add_executable(${PROJECT_NAME} main.c)
 target_link_libraries(${PROJECT_NAME} raylib)
