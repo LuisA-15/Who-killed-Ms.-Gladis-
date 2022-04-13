@@ -6,12 +6,22 @@ typedef struct button_struct {
     Vector2 position;
     Rectangle mask;
     Rectangle collision;
-    int state; // 1 if pressed down, 0 if not
+    int status; // 1 if pressed down, 0 if not
 }Button;
+
+enum texture_names {
+    TBLUE,
+    TYELLOW,
+    TRED,
+    TGREEN,
+    TGREY
+};
 
 
 void MainWindow();
-void AboutWindow();
+void AboutWindow(Texture2D textures[]);
+void ChoosePlayers(Texture2D textures[]);
+void HowtoPlayWindow(Texture2D textures[]);
 
 
 void MainWindow()
@@ -22,6 +32,9 @@ void MainWindow()
     Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
     Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
     Texture2D TRed = LoadTexture("../Assets/redSheet.png");
+    Texture2D TGreen = LoadTexture("../Assets/greenSheet.png");
+    Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
+    Texture2D guiTextures[] = {TBlue, TYellow, TRed, TGreen, TGrey};
 
     Button start = {
             TBlue,
@@ -30,16 +43,23 @@ void MainWindow()
             {start.position.x, start.position.y, start.mask.width, start.mask.height},
             0
     };
-    Button about = {
+    Button how = {
             TBlue,
             {225, 260},
-            {0,94,190, 49},
+            {0, 94,190, 49},
+            {how.position.x, how.position.y, how.mask.width, how.mask.height},
+            0
+    };
+    Button about = {
+            TGreen,
+            {225, 330},
+            {0, 0,190, 49},
             {about.position.x, about.position.y, about.mask.width, about.mask.height},
             0
     };
     Button exit = {
             TRed,
-            {225, 330},
+            {225, 390},
             {190, 0, 190, 49},
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
             0
@@ -48,6 +68,7 @@ void MainWindow()
 
     while (!WindowShouldClose())
     {
+        mousePoint = GetMousePosition();
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
 
@@ -55,57 +76,71 @@ void MainWindow()
 
         DrawTextureRec(start.texture, start.mask, start.position, WHITE);
         DrawText("Jugar", 280, 205, 30, BLACK);
+        DrawTextureRec(how.texture, how.mask, how.position, WHITE);
+        DrawText("Cómo Jugar", 235, 270, 30, BLACK);
         DrawTextureRec(about.texture, about.mask, about.position, WHITE);
-        DrawText("Acerca de", 240, 270, 30, BLACK);
+        DrawText("Acerca de", 240, 340, 30, BLACK);
         DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
-        DrawText("Salir", 290, 340, 30, BLACK);
+        DrawText("Salir", 290, 400, 30, BLACK);
 
-        mousePoint = GetMousePosition();
-
-        if (IsMouseButtonPressed(0))
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            if (IsMouseButtonDown(0))
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
             {
                 if (CheckCollisionPointRec(mousePoint, start.collision))
                 {
                     start.texture = TYellow;
                     start.mask = (Rectangle) {0, 50, 190, 45};
-                    start.state = 1;
+                    start.status = 1;
+                }
+                else if (CheckCollisionPointRec(mousePoint, how.collision))
+                {
+                    how.texture = TYellow;
+                    how.mask = (Rectangle) {0, 50, 190, 45};
+                    how.status = 1;
                 }
                 else if (CheckCollisionPointRec(mousePoint, about.collision))
                 {
-                    about.texture = TYellow;
-                    about.mask = (Rectangle) {0, 50, 190, 45};
-                    about.state = 1;
+                    about.mask = (Rectangle) {0, 192, 190, 45};
+                    about.status = 1;
                 }
                 else if (CheckCollisionPointRec(mousePoint, exit.collision))
                 {
                     exit.mask = (Rectangle) {0, 0, 190, 45};
-                    exit.state = 1;
+                    exit.status = 1;
                 }
             }
         }
 
-        if (IsMouseButtonReleased(0))
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
         {
             if (CheckCollisionPointRec(mousePoint, start.collision))
             {
-                if(start.state)
+                if (start.status)
                 {
-                    ClearBackground(RED);
+                    EndDrawing();
+                    ChoosePlayers(guiTextures);
+                }
+            }
+            else if (CheckCollisionPointRec(mousePoint, how.collision))
+            {
+                if (how.status)
+                {
+                    EndDrawing();
+                    HowtoPlayWindow(guiTextures);
                 }
             }
             else if (CheckCollisionPointRec(mousePoint, about.collision))
             {
-                if (about.state)
+                if (about.status)
                 {
                     EndDrawing();
-                    break;
+                    AboutWindow(guiTextures);
                 }
             }
             else if (CheckCollisionPointRec(mousePoint, exit.collision))
             {
-                if (exit.state)
+                if (exit.status)
                 {
                     EndDrawing();
                     break;
@@ -114,34 +149,55 @@ void MainWindow()
 
             start.texture = TBlue;
             start.mask = (Rectangle) {0,94,190, 49};
-            start.state = 0;
-            about.texture = TBlue;
-            about.mask = (Rectangle) {0, 94, 190, 49};
-            about.state = 0;
+            start.status = 0;
+
+            how.texture = TBlue;
+            how.mask = (Rectangle) {0, 94, 190, 49};
+            how.status = 0;
+
+            about.texture = TGreen;
+            about.mask = (Rectangle) {0, 0, 190, 49};
+            about.status = 0;
+
             exit.mask = (Rectangle) {190, 0 , 190, 49};
-            exit.state = 0;
 
         }
         EndDrawing();
     }
     CloseWindow();
-    if (about.state)
-    {
-        AboutWindow();
-    }
 }
 
-void AboutWindow()
+void ChoosePlayers(Texture2D textures[])
 {
-    InitWindow(400, 500, "Acerca de");
+    SetWindowSize(700, 500);
     Vector2 mousePoint;
 
-    Texture2D TRed = LoadTexture("../Assets/redsheet.png");
-    Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
+//    Button threePlayers;
+//    Button fourPlayers;
+    Button changePlayer = {
+            textures[TGREY],
+            {0, 0},
+            {223, 433, 36, 36},
+            {0, 0},
+            0,
+    };
 
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground((Color) {189, 195, 199});
+        DrawTextureRec(changePlayer.texture, changePlayer.mask, changePlayer.position, WHITE);
+        EndDrawing();
+    }
+    SetWindowSize(600, 500);
+}
+
+void HowtoPlayWindow(Texture2D textures[]) {
+    SetWindowTitle("Cómo Jugar");
+    Vector2 mousePoint;
     Button exit = {
-            TGrey,
-            {350, 450},
+            textures[TGREY],
+            {550, 450},
             {186, 433, 36, 36},
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
             0
@@ -149,17 +205,15 @@ void AboutWindow()
 
     while (!WindowShouldClose())
     {
+        mousePoint = GetMousePosition();
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
         DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 
-        mousePoint = GetMousePosition();
-
-        if (CheckCollisionPointRec(mousePoint, exit.collision))
-        {
-            exit.texture = TRed;
+        if (CheckCollisionPointRec(mousePoint, exit.collision)) {
+            exit.texture = textures[TRED];
             exit.mask = (Rectangle) {381, 36, 36, 36};
-            if (IsMouseButtonPressed(0))
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 EndDrawing();
                 break;
@@ -167,12 +221,48 @@ void AboutWindow()
         }
         else
         {
-            exit.texture = TGrey;
-            exit.mask = (Rectangle) {186, 433, 36, 36};
+            exit.texture = textures[4];
+            exit.mask = (Rectangle) {186, 433, 36, 35};
         }
 
         EndDrawing();
     }
-    CloseWindow();
-    MainWindow();
+}
+
+void AboutWindow(Texture2D textures[])
+{
+    SetWindowTitle("Acerca de");
+    Vector2 mousePoint;
+    Button exit = {
+            textures[TGREY],
+            {550, 450},
+            {186, 433, 36, 36},
+            {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
+            0
+    };
+
+    while (!WindowShouldClose())
+    {
+        mousePoint = GetMousePosition();
+        BeginDrawing();
+        ClearBackground((Color) {189, 195, 199});
+        DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+
+        if (CheckCollisionPointRec(mousePoint, exit.collision)) {
+            exit.texture = textures[TRED];
+            exit.mask = (Rectangle) {381, 36, 36, 36};
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                EndDrawing();
+                break;
+            }
+        }
+        else
+        {
+            exit.texture = textures[4];
+            exit.mask = (Rectangle) {186, 433, 36, 35};
+        }
+
+        EndDrawing();
+    }
 }
