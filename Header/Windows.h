@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include <stdio.h>
 
 typedef struct button_struct {
     Texture2D texture;
@@ -372,12 +371,9 @@ void ChoosePlayers(Texture2D textures[])
             {
                 // Start the game
             }
-            else
-            {
-                ready.texture = textures[TGREEN];
-                ready.mask = (Rectangle) {0, 0,190, 49};
-                ready.status = 0;
-            }
+            ready.texture = textures[TGREEN];
+            ready.mask = (Rectangle) {0, 0,190, 49};
+            ready.status = 0;
         }
 
         // exit button
