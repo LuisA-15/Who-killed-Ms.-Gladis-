@@ -6,8 +6,14 @@ typedef struct button_struct {
     Vector2 position;
     Rectangle mask;
     Rectangle collision;
-    int status; // 1 if pressed down, 0 if not
-}Button;
+    int status; // 2 if disabled, 1 if pressed, 0 if not
+} Button;
+
+typedef struct picture_struct {
+    Texture2D texture;
+    Rectangle mask;
+    Rectangle resize;
+} Picture;
 
 enum texture_names {
     TBLUE,
@@ -17,11 +23,22 @@ enum texture_names {
     TGREY
 };
 
+char names[][15] = {
+        "Ms. Gladis",
+        "El Coronel",
+        "F",
+        "Kim",
+        "La abuela",
+        "Hilda",
+        ""
+};
+
 
 void MainWindow();
 void AboutWindow(Texture2D textures[]);
 void ChoosePlayers(Texture2D textures[]);
 void HowtoPlayWindow(Texture2D textures[]);
+int ChangeCharacter(int namesInUse[4], int actualName);
 
 
 void MainWindow()
@@ -169,27 +186,239 @@ void MainWindow()
 
 void ChoosePlayers(Texture2D textures[])
 {
-    SetWindowSize(700, 500);
+    SetWindowSize(700, 600);
     Vector2 mousePoint;
+    int playerCount = 4;
+    enum playerNames {
+        REDNAME,
+        BLUENAME,
+        GREENNAME,
+        YELLOWNAME
+    };
+    int playerNames[] = {0, 1, 2, 3};
 
-//    Button threePlayers;
-//    Button fourPlayers;
-    Button changePlayer = {
+    Texture2D circleArrows = LoadTexture("../Assets/changePlayer.png");
+
+    Button exit = {
             textures[TGREY],
+            {654, 554},
+            {186, 433, 36, 36},
+            {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
+            0
+    };
+    Button ready = {
+            textures[TGREEN],
+            {245, 541},
+            {0, 0,190, 49},
+            {ready.position.x, ready.position.y, ready.mask.width, ready.mask.height},
+            0
+    };
+    Button threePlayers = {
+            textures[TGREY],
+            {250, 30},
+            {185, 469, 36, 36},
+            {threePlayers.position.x, threePlayers.position.y, threePlayers.mask.width, threePlayers.mask.height},
+            0
+    };
+    Button fourPlayers = {
+            textures[TGREY],
+            {350, 30},
+            {185, 469, 36, 36},
+            {fourPlayers.position.x, fourPlayers.position.y, fourPlayers.mask.width, fourPlayers.mask.height},
+            1
+    };
+    Button changePlayer = {
+            circleArrows,
             {0, 0},
-            {223, 433, 36, 36},
-            {0, 0},
+            {0, 0, 36, 36},
+            {0, 0, 36, 36},
             0,
+    };
+    Picture redPlayer = {
+        textures[TRED],
+        {337, 188, 49, 49},
+        {110, 95, redPlayer.mask.width * 3, redPlayer.mask.height * 3},
+    };
+    Picture bluePlayer = {
+        textures[TBLUE],
+        {288, 194, 49, 49},
+        {420, 95, bluePlayer.mask.width * 3, bluePlayer.mask.height * 3}
+    };
+    Picture greenPlayer = {
+        textures[TGREEN],
+        {337, 184, 49, 49},
+        {110, 325, greenPlayer.mask.height * 3, greenPlayer.mask.height * 3}
+    };
+    Picture yellowPlayer = {
+        textures[TYELLOW],
+        {190, 194, 49, 49},
+        {420, 325, yellowPlayer.mask.width * 3, yellowPlayer.mask.height * 3}
+    };
+    Picture nameHolder = {
+            textures[TGREY],
+            {2, 51, 186, 45}
     };
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
-        DrawTextureRec(changePlayer.texture, changePlayer.mask, changePlayer.position, WHITE);
+
+        mousePoint = GetMousePosition();
+
+        if (fourPlayers.status)
+        {
+            fourPlayers.texture = textures[TBLUE];
+            fourPlayers.mask = (Rectangle) {386, 210, 36, 36};
+            threePlayers.texture = textures[TGREY];
+            threePlayers.mask = (Rectangle) {185, 469, 36, 36};
+
+            yellowPlayer.texture = textures[TYELLOW];
+            yellowPlayer.mask = (Rectangle) {190, 194, 49, 49};
+        }
+        else if (threePlayers.status) {
+            threePlayers.texture = textures[TBLUE];
+            threePlayers.mask = (Rectangle) {386, 210, 36, 36};
+            fourPlayers.texture = textures[TGREY];
+            fourPlayers.mask = (Rectangle) {185, 469, 36, 36};
+
+            yellowPlayer.texture = textures[TGREY];
+            yellowPlayer.mask = (Rectangle) {195, 0, 49, 49};
+        }
+
+        DrawText("N° de jugadores:     3           4", 20, 40, 20, BLACK);
+        DrawTextureRec(threePlayers.texture, threePlayers.mask, threePlayers.position, WHITE);
+        DrawTextureRec(fourPlayers.texture, fourPlayers.mask, fourPlayers.position, WHITE);
+
+        DrawTexturePro(redPlayer.texture, redPlayer.mask, redPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(bluePlayer.texture, bluePlayer.mask, bluePlayer.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(greenPlayer.texture, greenPlayer.mask, greenPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(yellowPlayer.texture, yellowPlayer.mask, yellowPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
+
+        DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {93, 250,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {403, 250,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {93, 480,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {403, 480,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
+        DrawText(names[playerNames[REDNAME]], 110, 265, 20, BLACK);
+        DrawText(names[playerNames[BLUENAME]], 420, 265, 20, BLACK);
+        DrawText(names[playerNames[GREENNAME]], 110, 495, 20, BLACK);
+        DrawText(names[playerNames[YELLOWNAME]], 420, 495, 20, BLACK);
+
+        DrawTextureRec(changePlayer.texture, changePlayer.mask, (Vector2) {258, 196}, WHITE);
+        DrawTextureRec(changePlayer.texture, changePlayer.mask, (Vector2) {568, 196}, WHITE);
+        DrawTextureRec(changePlayer.texture, changePlayer.mask, (Vector2) {258, 426}, WHITE);
+        DrawTextureRec(changePlayer.texture, changePlayer.mask, (Vector2) {568, 426}, WHITE);
+
+        DrawTextureRec(ready.texture, ready.mask, ready.position, WHITE);
+        DrawText("Comenzar", 270, 550, 30, BLACK);
+        DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+
+        // Buttons functionality
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            // N° of players buttons
+
+            if (CheckCollisionPointRec(mousePoint, threePlayers.collision))
+            {
+                threePlayers.status = 1;
+                fourPlayers.status = 0;
+                playerCount = 3;
+                playerNames[YELLOWNAME] = 6;
+            }
+            else if (CheckCollisionPointRec(mousePoint, fourPlayers.collision))
+            {
+                fourPlayers.status = 1;
+                threePlayers.status = 0;
+                playerCount = 4;
+                playerNames[YELLOWNAME] = ChangeCharacter(playerNames, playerNames[YELLOWNAME]);
+            }
+
+            // Change character buttons
+
+            else if (CheckCollisionPointRec(mousePoint, (Rectangle) {258, 196, 36, 36}))
+            {
+                playerNames[REDNAME] = ChangeCharacter(playerNames, playerNames[REDNAME]);
+            }
+            else if (CheckCollisionPointRec(mousePoint, (Rectangle) {568, 196, 36, 36}))
+            {
+                playerNames[BLUENAME] = ChangeCharacter(playerNames, playerNames[BLUENAME]);
+            }
+            else if (CheckCollisionPointRec(mousePoint, (Rectangle) {258, 426, 36, 36}))
+            {
+                playerNames[GREENNAME] = ChangeCharacter(playerNames, playerNames[GREENNAME]);
+            }
+            else if (CheckCollisionPointRec(mousePoint, (Rectangle) {568, 426, 36, 36}))
+            {
+                playerNames[YELLOWNAME] = ChangeCharacter(playerNames, playerNames[YELLOWNAME]);
+            }
+
+            // start button
+
+            else if (CheckCollisionPointRec(mousePoint, ready.collision))
+            {
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                {
+                    ready.texture = textures[TYELLOW];
+                    ready.mask = (Rectangle) {0, 50, 190, 45};
+                    ready.status = 1;
+                }
+            }
+        }
+
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mousePoint, ready.collision))
+            {
+                // Start the game
+            }
+            else
+            {
+                ready.texture = textures[TGREEN];
+                ready.mask = (Rectangle) {0, 0,190, 49};
+                ready.status = 0;
+            }
+        }
+
+        // exit button
+
+        if (CheckCollisionPointRec(mousePoint, exit.collision) && ready.status == 0)
+        {
+            exit.texture = textures[TRED];
+            exit.mask = (Rectangle) {381, 36, 36, 36};
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                EndDrawing();
+                break;
+            }
+        }
+        else
+        {
+            exit.texture = textures[TGREY];
+            exit.mask = (Rectangle) {186, 433, 36, 35};
+        }
+
         EndDrawing();
     }
     SetWindowSize(600, 500);
+}
+
+int ChangeCharacter(int namesInUse[4], int actualName) {
+    int newName = (actualName + 1) % 6;
+    bool nameExists = false;
+
+    for (int i = 0; i < 4; i++) {
+        if (newName == namesInUse[i])
+            nameExists = true;
+    }
+
+    if (nameExists) {
+        newName = ChangeCharacter(namesInUse, newName);
+    } else {
+        return newName;
+    }
+
+    return newName;
 }
 
 void HowtoPlayWindow(Texture2D textures[]) {
@@ -221,12 +450,13 @@ void HowtoPlayWindow(Texture2D textures[]) {
         }
         else
         {
-            exit.texture = textures[4];
+            exit.texture = textures[TGREY];
             exit.mask = (Rectangle) {186, 433, 36, 35};
         }
 
         EndDrawing();
     }
+    SetWindowTitle("Who killed Ms. Gladis?");
 }
 
 void AboutWindow(Texture2D textures[])
@@ -259,10 +489,11 @@ void AboutWindow(Texture2D textures[])
         }
         else
         {
-            exit.texture = textures[4];
+            exit.texture = textures[TGREY];
             exit.mask = (Rectangle) {186, 433, 36, 35};
         }
 
         EndDrawing();
     }
+    SetWindowTitle("Who killed Ms. Gladis?");
 }
