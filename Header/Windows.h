@@ -1,11 +1,10 @@
 #include "raylib.h"
-
 typedef struct button_struct {
     Texture2D texture;
     Vector2 position;
     Rectangle mask;
     Rectangle collision;
-    int status; // 2 if disabled, 1 if pressed, 0 if not
+    int status; // 1 if pressed, 0 if not
 } Button;
 
 typedef struct picture_struct {
@@ -22,16 +21,8 @@ enum texture_names {
     TGREY
 };
 
-char names[][15] = {
-        "Ms. Gladis",
-        "El Coronel",
-        "F",
-        "Kim",
-        "La abuela",
-        "Hilda",
-        ""
-};
-
+int playerCount = 0;
+int playerId[] = {0, 1, 2, 3};
 
 void MainWindow();
 void AboutWindow(Texture2D textures[]);
@@ -39,10 +30,9 @@ void ChoosePlayers(Texture2D textures[]);
 void HowtoPlayWindow(Texture2D textures[]);
 int ChangeCharacter(int namesInUse[4], int actualName);
 
-
 void MainWindow()
 {
-    InitWindow(600, 500, "Who killed Ms. Gladis?");
+    InitWindow(600, 500, "Who killed Mrs. Gladis?");
     Vector2 mousePoint;
 
     Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
@@ -88,7 +78,7 @@ void MainWindow()
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
 
-        DrawText("Who Killed Ms. Gladis?", 25, 100, 50, BLACK);
+        DrawText("Who Killed Mrs. Gladis?", 10, 100, 50, BLACK);
 
         DrawTextureRec(start.texture, start.mask, start.position, WHITE);
         DrawText("Jugar", 280, 205, 30, BLACK);
@@ -136,6 +126,11 @@ void MainWindow()
                 {
                     EndDrawing();
                     ChoosePlayers(guiTextures);
+                    if (playerCount)
+                    {
+                        EndDrawing();
+                        break;
+                    }
                 }
             }
             else if (CheckCollisionPointRec(mousePoint, how.collision))
@@ -187,16 +182,34 @@ void ChoosePlayers(Texture2D textures[])
 {
     SetWindowSize(700, 600);
     Vector2 mousePoint;
-    int playerCount = 4;
-    enum playerNames {
-        REDNAME,
-        BLUENAME,
-        GREENNAME,
-        YELLOWNAME
+    playerCount = 4;
+    enum players {
+        REDPLAYER,
+        BLUEPLAYER,
+        GREENPLAYER,
+        YELLOWPLAYER
     };
-    int playerNames[] = {0, 1, 2, 3};
+
+    char names[][15] = {
+            "Mrs. Gladis",
+            "Colonel",
+            "Kim",
+            "Boy",
+            "Hilda",
+            "Detective",
+            ""
+    };
 
     Texture2D circleArrows = LoadTexture("../Assets/changePlayer.png");
+    Texture2D profilePics = LoadTexture("../Assets/charProfiles.png");
+
+    Rectangle gladisMask = {0, 0, 64, 64};
+    Rectangle kimMask = {profilePics.width / 6, 0, 64, 64};
+    Rectangle hildaMask = {(profilePics.width * 2) / 6, 0, 64, 64};
+    Rectangle colonelMask = {(profilePics.width * 3) / 6, 0, 64, 64};
+    Rectangle boyMask = {(profilePics.width * 4) / 6, 0, 64, 64};
+    Rectangle detectiveMask = {(profilePics.width * 5) / 6, 0, 64, 64};
+    Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
 
     Button exit = {
             textures[TGREY],
@@ -294,14 +307,19 @@ void ChoosePlayers(Texture2D textures[])
         DrawTexturePro(greenPlayer.texture, greenPlayer.mask, greenPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(yellowPlayer.texture, yellowPlayer.mask, yellowPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
 
+        DrawTexturePro(profilePics, profileMasks[playerId[REDPLAYER]], (Rectangle) {125, 110,117, 105}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(profilePics, profileMasks[playerId[BLUEPLAYER]], (Rectangle) {435, 110,117, 105}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(profilePics, profileMasks[playerId[GREENPLAYER]], (Rectangle) {125, 340,117, 105}, (Vector2) {0, 0}, 0, WHITE);
+        if (playerCount == 4)
+            DrawTexturePro(profilePics, profileMasks[playerId[YELLOWPLAYER]], (Rectangle) {435, 340,117, 105}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {93, 250,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {403, 250,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {93, 480,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(nameHolder.texture, nameHolder.mask, (Rectangle) {403, 480,  186, 40}, (Vector2) {0, 0}, 0, WHITE);
-        DrawText(names[playerNames[REDNAME]], 110, 265, 20, BLACK);
-        DrawText(names[playerNames[BLUENAME]], 420, 265, 20, BLACK);
-        DrawText(names[playerNames[GREENNAME]], 110, 495, 20, BLACK);
-        DrawText(names[playerNames[YELLOWNAME]], 420, 495, 20, BLACK);
+        DrawText(names[playerId[REDPLAYER]], 110, 265, 20, BLACK);
+        DrawText(names[playerId[BLUEPLAYER]], 420, 265, 20, BLACK);
+        DrawText(names[playerId[GREENPLAYER]], 110, 495, 20, BLACK);
+        DrawText(names[playerId[YELLOWPLAYER]], 420, 495, 20, BLACK);
 
         DrawTextureRec(changePlayer.texture, changePlayer.mask, (Vector2) {258, 196}, WHITE);
         DrawTextureRec(changePlayer.texture, changePlayer.mask, (Vector2) {568, 196}, WHITE);
@@ -310,6 +328,7 @@ void ChoosePlayers(Texture2D textures[])
 
         DrawTextureRec(ready.texture, ready.mask, ready.position, WHITE);
         DrawText("Comenzar", 270, 550, 30, BLACK);
+
         DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 
         // Buttons functionality
@@ -323,33 +342,34 @@ void ChoosePlayers(Texture2D textures[])
                 threePlayers.status = 1;
                 fourPlayers.status = 0;
                 playerCount = 3;
-                playerNames[YELLOWNAME] = 6;
+                playerId[YELLOWPLAYER] = 6;
             }
             else if (CheckCollisionPointRec(mousePoint, fourPlayers.collision))
             {
                 fourPlayers.status = 1;
                 threePlayers.status = 0;
                 playerCount = 4;
-                playerNames[YELLOWNAME] = ChangeCharacter(playerNames, playerNames[YELLOWNAME]);
+                playerId[YELLOWPLAYER] = ChangeCharacter(playerId, playerId[YELLOWPLAYER]);
             }
 
             // Change character buttons
 
             else if (CheckCollisionPointRec(mousePoint, (Rectangle) {258, 196, 36, 36}))
             {
-                playerNames[REDNAME] = ChangeCharacter(playerNames, playerNames[REDNAME]);
+                playerId[REDPLAYER] = ChangeCharacter(playerId, playerId[REDPLAYER]);
             }
             else if (CheckCollisionPointRec(mousePoint, (Rectangle) {568, 196, 36, 36}))
             {
-                playerNames[BLUENAME] = ChangeCharacter(playerNames, playerNames[BLUENAME]);
+                playerId[BLUEPLAYER] = ChangeCharacter(playerId, playerId[BLUEPLAYER]);
             }
             else if (CheckCollisionPointRec(mousePoint, (Rectangle) {258, 426, 36, 36}))
             {
-                playerNames[GREENNAME] = ChangeCharacter(playerNames, playerNames[GREENNAME]);
+                playerId[GREENPLAYER] = ChangeCharacter(playerId, playerId[GREENPLAYER]);
             }
             else if (CheckCollisionPointRec(mousePoint, (Rectangle) {568, 426, 36, 36}))
             {
-                playerNames[YELLOWNAME] = ChangeCharacter(playerNames, playerNames[YELLOWNAME]);
+                if (playerCount == 4)
+                    playerId[YELLOWPLAYER] = ChangeCharacter(playerId, playerId[YELLOWPLAYER]);
             }
 
             // start button
@@ -370,6 +390,8 @@ void ChoosePlayers(Texture2D textures[])
             if (CheckCollisionPointRec(mousePoint, ready.collision))
             {
                 // Start the game
+                EndDrawing();
+                break;
             }
             ready.texture = textures[TGREEN];
             ready.mask = (Rectangle) {0, 0,190, 49};
@@ -385,6 +407,7 @@ void ChoosePlayers(Texture2D textures[])
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 EndDrawing();
+                playerCount = 0;
                 break;
             }
         }
@@ -407,7 +430,6 @@ int ChangeCharacter(int namesInUse[4], int actualName) {
         if (newName == namesInUse[i])
             nameExists = true;
     }
-
     if (nameExists) {
         newName = ChangeCharacter(namesInUse, newName);
     } else {
@@ -452,7 +474,7 @@ void HowtoPlayWindow(Texture2D textures[]) {
 
         EndDrawing();
     }
-    SetWindowTitle("Who killed Ms. Gladis?");
+    SetWindowTitle("Who killed Mrs. Gladis?");
 }
 
 void AboutWindow(Texture2D textures[])
@@ -491,5 +513,5 @@ void AboutWindow(Texture2D textures[])
 
         EndDrawing();
     }
-    SetWindowTitle("Who killed Ms. Gladis?");
+    SetWindowTitle("Who killed Mrs. Gladis?");
 }
