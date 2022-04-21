@@ -181,6 +181,7 @@ void MainWindow()
 void ChoosePlayers(Texture2D textures[])
 {
     SetWindowSize(700, 600);
+    bool gameWillStart = false;
     Vector2 mousePoint;
     playerCount = 4;
     enum players {
@@ -194,7 +195,7 @@ void ChoosePlayers(Texture2D textures[])
             "Mrs. Gladis",
             "Colonel",
             "Kim",
-            "Boy",
+            "Joel",
             "Hilda",
             "Detective",
             ""
@@ -390,6 +391,7 @@ void ChoosePlayers(Texture2D textures[])
             if (CheckCollisionPointRec(mousePoint, ready.collision))
             {
                 // Start the game
+                gameWillStart = true;
                 EndDrawing();
                 break;
             }
@@ -407,7 +409,6 @@ void ChoosePlayers(Texture2D textures[])
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 EndDrawing();
-                playerCount = 0;
                 break;
             }
         }
@@ -416,9 +417,10 @@ void ChoosePlayers(Texture2D textures[])
             exit.texture = textures[TGREY];
             exit.mask = (Rectangle) {186, 433, 36, 35};
         }
-
         EndDrawing();
     }
+    if (!gameWillStart)
+        playerCount = 0;
     SetWindowSize(600, 500);
 }
 
