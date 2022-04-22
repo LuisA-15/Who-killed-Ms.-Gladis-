@@ -1,59 +1,118 @@
-#include <stdio.h>
 #include "raylib.h"
 
-int main() {
-    const int screenWidth = 700;
-    const int screenHeight = 700;
+enum items_enum {
+    KNIFE,
+    GUN,
+    POISON,
+    PANTIES,
+    JAR,
+    STEAK,
+    NOTES,
+    CASEFILE
+};
+
+enum steps_enum {
+    PATH,
+    COLLISION,
+    SHORTCUT,
+    LIVING,
+    LIBRARY,
+    BATHROOM,
+    KITCHEN,
+    BEDROOM,
+    GARAGE
+};
+
+void Gameplay() {
+    const int screenWidth = GetScreenWidth();
+    const int screenHeight = GetScreenHeight();
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "Who killed Mrs. Gladys?");
-    SetTargetFPS(30);
-    Image room1 = LoadImage("../Assets/Tileset_16x16_1-mod.png");
-    Image room2 = LoadImage("../Assets/Tileset_16x16_2.png");
-    Image room3 = LoadImage("../Assets/Tileset_16x16_3.png");
-    Image room4 = LoadImage("../Assets/Tileset_16x16_4.png");
-    Image room5 = LoadImage("../Assets/Tileset_16x16_5.png");
-    Image floor = LoadImage("../Assets/complete_floor2.png");
-    Image floor_base = LoadImage("../Assets/floor.png");
-    Image carpet = LoadImage("../Assets/complete_carpet.png");
-    Image garden = LoadImage("../Assets/GARDEN.png");
-
-    Texture room1Texture = LoadTextureFromImage(room1);
-    Texture room2Texture = LoadTextureFromImage(room2);
-    Texture room3Texture = LoadTextureFromImage(room3);
-    Texture room4Texture = LoadTextureFromImage(room4);
-    Texture room5Texture = LoadTextureFromImage(room5);
-    Texture roomFloor = LoadTextureFromImage(floor);
-    Texture roomFloor2 = LoadTextureFromImage(floor_base);
-    Texture carpetTexture = LoadTextureFromImage(carpet);
-    Texture Garden = LoadTextureFromImage(garden);
+    MaximizeWindow();
+    int boardGrid[20][10] = {};
 
 
-    UnloadImage(room1); UnloadImage(room2); UnloadImage(room3); UnloadImage(room4);
-    UnloadImage(room5); UnloadImage(floor); UnloadImage(floor_base); UnloadImage(carpet);
-    UnloadImage(garden);
+    Texture2D board = LoadTexture("../Assets/board/board.png");
+    Texture2D items = LoadTexture("../Assets/item icons.png");
+
+    Rectangle knifeMask = {0, 0, 70, 70};
+    Rectangle gunMask = {items.width / 8, 0, 70, 70};
+    Rectangle poisonMask = {items.width * 2 / 8, 0, 70, 70};
+    Rectangle pantiesMask = {items.width * 3 / 8, 0, 70, 70};
+    Rectangle jarMask = {items.width * 4 / 8, 0, 70, 70};
+    Rectangle steakMask = {items.width * 5 / 6, 0, 70, 70};
+    Rectangle notesMask = {items.width * 6 / 8, 0, 70, 70};
+    Rectangle casefileMask = {items.width * 7 / 8, 0, 70, 70};
+
+    Rectangle itemsMasks[] = {knifeMask, gunMask, poisonMask, pantiesMask, jarMask, steakMask, notesMask, casefileMask};
+
+    Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
+    Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
+    Texture2D TRed = LoadTexture("../Assets/redSheet.png");
+    Texture2D TGreen = LoadTexture("../Assets/greenSheet.png");
+    Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
+    Texture2D guiTextures[] = {TBlue, TYellow, TRed, TGreen, TGrey};
+
+    int activePlayer = REDPLAYER;
+
+    Texture2D notesSheet = LoadTexture("../Assets/notesSheet.png");
+
+    Texture2D profilePics = LoadTexture("../Assets/charProfiles.png");
+    Rectangle gladisMask = {0, 0, 64, 64};
+    Rectangle kimMask = {profilePics.width / 6, 0, 64, 64};
+    Rectangle hildaMask = {(profilePics.width * 2) / 6, 0, 64, 64};
+    Rectangle colonelMask = {(profilePics.width * 3) / 6, 0, 64, 64};
+    Rectangle boyMask = {(profilePics.width * 4) / 6, 0, 64, 64};
+    Rectangle detectiveMask = {(profilePics.width * 5) / 6, 0, 64, 64};
+    Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
 
     while(!WindowShouldClose())
     {
         BeginDrawing();
-
         ClearBackground(DARKBROWN);
-        DrawTexture(Garden, screenWidth/7+15, 10, RAYWHITE);
-        DrawTexture(Garden, screenWidth/7*5 -45, 10, RAYWHITE);
-        DrawTexture(Garden, screenWidth/7, screenHeight/8*6-15, RAYWHITE);
-        DrawTexture(Garden, screenWidth/7*5-50, screenHeight/8*6-15, RAYWHITE);
-        DrawTexture(room2Texture, screenWidth/2-70, 18, RAYWHITE);
-        DrawTexture(room4Texture, screenWidth/7+1,screenHeight/8*2 + 10, RAYWHITE);
-        DrawTexture(room5Texture, screenWidth/7*5-51,  screenHeight/8*2 +10, RAYWHITE);
-        DrawTexture(room1Texture, screenWidth/7+14 , screenHeight/8*4, RAYWHITE);
-        DrawTexture(room3Texture, screenWidth/7*5-51, screenHeight/8*4, RAYWHITE);
-        //DrawRectangleLines(screenWidth/3+28, screenHeight/4-15, roomFloor.width, roomFloor2.height, BLACK);
-        DrawTexture(roomFloor, screenWidth/3+28, screenHeight/4, RAYWHITE);
-        DrawTexture(carpetTexture, screenWidth/3+30 + roomFloor2.width, screenHeight/4 + roomFloor2.height*3, RAYWHITE);
+        DrawTextureRec(board, (Rectangle) {0, 0, board.width, board.height}, (Vector2) {400, 10}, RAYWHITE);
+
+        // Draw Characters
+        DrawRectangle(35, 35, 300, 138, MAROON);
+        DrawRectangle(35, 195, 300, 138, DARKBLUE);
+        DrawRectangle(35, 355, 300, 138, DARKGREEN);
+        DrawRectangle(35, 515, 300, 138, GOLD);
+        DrawTexturePro(profilePics, profileMasks[playerId[REDPLAYER]], (Rectangle) {40, 40, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(profilePics, profileMasks[playerId[BLUEPLAYER]], (Rectangle) {40, 200, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(profilePics, profileMasks[playerId[GREENPLAYER]], (Rectangle) {40, 360, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(profilePics, profileMasks[playerId[YELLOWPLAYER]], (Rectangle) {40, 520, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
+        DrawRectangle(173, 40, 157, 30, GRAY);
+        DrawRectangle(173, 200, 157, 30, GRAY);
+        DrawRectangle(173, 360, 157, 30, GRAY);
+        DrawRectangle(173, 520, 157, 30, GRAY);
+        DrawText(names[playerId[REDPLAYER]], 178, 45, 20, BLACK);
+        DrawText(names[playerId[BLUEPLAYER]], 178, 205, 20, BLACK);
+        DrawText(names[playerId[GREENPLAYER]], 178, 365, 20, BLACK);
+        DrawText(names[playerId[YELLOWPLAYER]], 178, 525, 20, BLACK);
+
+        DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 85}, RAYWHITE);
+        DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 245}, RAYWHITE);
+        DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 405}, RAYWHITE);
+        DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
+
+        // Active Player
+        DrawRectangle(10, 35 + (160 * activePlayer), 20, 138, YELLOW);
+
+//        DrawTextureRec(notesSheet, (Rectangle) {0, 0, notesSheet.width, notesSheet.height}, (Vector2) {0, 0}, RAYWHITE);
+
+        DrawTexturePro(guiTextures[TBLUE], (Rectangle) {0,94,190, 49}, (Rectangle) {1050, 350, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiTextures[TGREEN], (Rectangle) {0, 0,190, 49}, (Rectangle) {1050, 450, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiTextures[TRED], (Rectangle) {190, 0, 190, 49}, (Rectangle) {1050, 550, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiTextures[TGREY], (Rectangle) {0, 237, 190, 49}, (Rectangle) {1200, 650, 190, 49}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText("Tirar dado", 1080, 365, 50, BLACK);
+        DrawText("Sospechar", 1080, 465, 50, BLACK);
+        DrawText("Acusar", 1130, 565, 50, BLACK);
+        DrawText("Opciones", 1220, 660, 30, BLACK);
+
+//        DrawRectangle(0, 0, 1000, 900, (Color) {0, 0, 0, 100});
 
         EndDrawing();
     }
     CloseWindow();
-
-    printf("Hello, World!\n");
-    return 0;
 }
 
