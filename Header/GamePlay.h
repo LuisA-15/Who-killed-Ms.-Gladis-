@@ -1,26 +1,31 @@
-#include "raylib.h"
+typedef struct accusation_struct {
+    int suspect;
+    int weapon;
+    int place;
+} Accusation;
+
+enum cards_enum {
+    MARYPOPPINS, CORNELIUS, KIM, JOEL, HILDA, MAX,
+    KNIFE, GUN, POISON, PANTIES, JAR, STEAK,
+    LIVING, LIBRARY, BATHROOM, KITCHEN, BEDROOM, GARAGE,
+    NULL
+};
 
 enum items_enum {
-    KNIFE,
-    GUN,
-    POISON,
-    PANTIES,
-    JAR,
-    STEAK,
     NOTES,
     CASEFILE
 };
 
-enum steps_enum {
-    PATH,
-    COLLISION,
+enum movements_enum {
+    ABLE,
+    UNABLE,
     SHORTCUT,
-    LIVING,
-    LIBRARY,
-    BATHROOM,
-    KITCHEN,
-    BEDROOM,
-    GARAGE
+    MLIVING,
+    MLIBRARY,
+    MBATHROOM,
+    MKITCHEN,
+    MBEDROOM,
+    MGARAGE
 };
 
 void Gameplay() {
@@ -29,22 +34,9 @@ void Gameplay() {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "Who killed Mrs. Gladys?");
     MaximizeWindow();
-    int boardGrid[20][10] = {};
-
+    Vector2 mousePoint;
 
     Texture2D board = LoadTexture("../Assets/board/board.png");
-    Texture2D items = LoadTexture("../Assets/item icons.png");
-
-    Rectangle knifeMask = {0, 0, 70, 70};
-    Rectangle gunMask = {items.width / 8, 0, 70, 70};
-    Rectangle poisonMask = {items.width * 2 / 8, 0, 70, 70};
-    Rectangle pantiesMask = {items.width * 3 / 8, 0, 70, 70};
-    Rectangle jarMask = {items.width * 4 / 8, 0, 70, 70};
-    Rectangle steakMask = {items.width * 5 / 6, 0, 70, 70};
-    Rectangle notesMask = {items.width * 6 / 8, 0, 70, 70};
-    Rectangle casefileMask = {items.width * 7 / 8, 0, 70, 70};
-
-    Rectangle itemsMasks[] = {knifeMask, gunMask, poisonMask, pantiesMask, jarMask, steakMask, notesMask, casefileMask};
 
     Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
     Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
@@ -53,7 +45,18 @@ void Gameplay() {
     Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
     Texture2D guiTextures[] = {TBlue, TYellow, TRed, TGreen, TGrey};
 
-    int activePlayer = REDPLAYER;
+    Texture2D items = LoadTexture("../Assets/item icons.png");
+    Rectangle knifeMask = {0, 0, 70, 70};
+    Rectangle gunMask = {items.width / 8, 0, 70, 70};
+    Rectangle poisonMask = {items.width * 2 / 8, 0, 70, 70};
+    Rectangle pantiesMask = {items.width * 3 / 8, 0, 70, 70};
+    Rectangle jarMask = {items.width * 4 / 8, 0, 70, 70};
+    Rectangle steakMask = {items.width * 5 / 6, 0, 70, 70};
+    Rectangle cardMasks[] = {knifeMask, gunMask, poisonMask, pantiesMask, jarMask, steakMask};
+
+    Rectangle notesMask = {items.width * 6 / 8, 0, 70, 70};
+    Rectangle casefileMask = {items.width * 7 / 8, 0, 70, 70};
+    Rectangle itemsMasks[] = {notesMask, casefileMask};
 
     Texture2D notesSheet = LoadTexture("../Assets/notesSheet.png");
 
@@ -65,6 +68,10 @@ void Gameplay() {
     Rectangle boyMask = {(profilePics.width * 4) / 6, 0, 64, 64};
     Rectangle detectiveMask = {(profilePics.width * 5) / 6, 0, 64, 64};
     Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
+
+    int boardGrid[20][10] = {};
+
+    int activePlayer = REDPLAYER; // First player in turn order by default
 
     while(!WindowShouldClose())
     {
@@ -95,11 +102,12 @@ void Gameplay() {
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 405}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
 
-        // Active Player
+        // Active Player marker
         DrawRectangle(10, 35 + (160 * activePlayer), 20, 138, YELLOW);
 
 //        DrawTextureRec(notesSheet, (Rectangle) {0, 0, notesSheet.width, notesSheet.height}, (Vector2) {0, 0}, RAYWHITE);
 
+        // Draw Action buttons
         DrawTexturePro(guiTextures[TBLUE], (Rectangle) {0,94,190, 49}, (Rectangle) {1050, 350, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(guiTextures[TGREEN], (Rectangle) {0, 0,190, 49}, (Rectangle) {1050, 450, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(guiTextures[TRED], (Rectangle) {190, 0, 190, 49}, (Rectangle) {1050, 550, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
@@ -108,6 +116,7 @@ void Gameplay() {
         DrawText("Sospechar", 1080, 465, 50, BLACK);
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
+
 
 //        DrawRectangle(0, 0, 1000, 900, (Color) {0, 0, 0, 100});
 

@@ -1,4 +1,3 @@
-#include "raylib.h"
 typedef struct button_struct {
     Texture2D texture;
     Vector2 position;
@@ -21,8 +20,6 @@ enum texture_names {
     TGREY
 };
 
-int playerCount = 0;
-int playerId[] = {0, 1, 2, 3};
 
 void MainWindow();
 void AboutWindow(Texture2D textures[]);
@@ -43,28 +40,28 @@ void MainWindow()
     Texture2D guiTextures[] = {TBlue, TYellow, TRed, TGreen, TGrey};
 
     Button start = {
-            TBlue,
+            guiTextures[TBLUE],
             {225, 200},
             {0,94,190, 49},
             {start.position.x, start.position.y, start.mask.width, start.mask.height},
             0
     };
     Button how = {
-            TBlue,
+            guiTextures[TBLUE],
             {225, 260},
             {0, 94,190, 49},
             {how.position.x, how.position.y, how.mask.width, how.mask.height},
             0
     };
     Button about = {
-            TGreen,
+            guiTextures[TGREEN],
             {225, 330},
             {0, 0,190, 49},
             {about.position.x, about.position.y, about.mask.width, about.mask.height},
             0
     };
     Button exit = {
-            TRed,
+            guiTextures[TRED],
             {225, 390},
             {190, 0, 190, 49},
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
@@ -95,13 +92,13 @@ void MainWindow()
             {
                 if (CheckCollisionPointRec(mousePoint, start.collision))
                 {
-                    start.texture = TYellow;
+                    start.texture = guiTextures[TYELLOW];
                     start.mask = (Rectangle) {0, 50, 190, 45};
                     start.status = 1;
                 }
                 else if (CheckCollisionPointRec(mousePoint, how.collision))
                 {
-                    how.texture = TYellow;
+                    how.texture = guiTextures[TYELLOW];
                     how.mask = (Rectangle) {0, 50, 190, 45};
                     how.status = 1;
                 }
@@ -158,15 +155,15 @@ void MainWindow()
                 }
             }
 
-            start.texture = TBlue;
+            start.texture = guiTextures[TBLUE];
             start.mask = (Rectangle) {0,94,190, 49};
             start.status = 0;
 
-            how.texture = TBlue;
+            how.texture = guiTextures[TBLUE];
             how.mask = (Rectangle) {0, 94, 190, 49};
             how.status = 0;
 
-            about.texture = TGreen;
+            about.texture = guiTextures[TGREEN];
             about.mask = (Rectangle) {0, 0, 190, 49};
             about.status = 0;
 
@@ -184,23 +181,6 @@ void ChoosePlayers(Texture2D textures[])
     bool gameWillStart = false;
     Vector2 mousePoint;
     playerCount = 4;
-    enum players {
-        REDPLAYER,
-        BLUEPLAYER,
-        GREENPLAYER,
-        YELLOWPLAYER
-    };
-
-    char names[][15] = {
-            "Mrs. Gladis",
-            "Colonel",
-            "Kim",
-            "Joel",
-            "Hilda",
-            "Detective",
-            ""
-    };
-
     Texture2D circleArrows = LoadTexture("../Assets/changePlayer.png");
     Texture2D profilePics = LoadTexture("../Assets/charProfiles.png");
 
