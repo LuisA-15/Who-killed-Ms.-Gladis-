@@ -12,6 +12,7 @@ enum players {
 };
 
 int playerCount = 0;
+
 // Each playable character has an id that matches with its index in the names array. These are the default values
 int playerId[] = {0, 1, 2, 3};
 
