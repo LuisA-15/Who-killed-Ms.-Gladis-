@@ -25,3 +25,8 @@ char names[][15] = {
         "Max",
         ""
 };
+
+Player redPlayer;
+Player bluePlayer;
+Player greenPlayer;
+Player yellowPlayer;
