@@ -1,26 +1,3 @@
-typedef struct button_struct {
-    Texture2D texture;
-    Vector2 position;
-    Rectangle mask;
-    Rectangle collision;
-    int status; // 1 if pressed, 0 if not
-} Button;
-
-typedef struct picture_struct {
-    Texture2D texture;
-    Rectangle mask;
-    Rectangle resize;
-} Picture;
-
-enum texture_names {
-    TBLUE,
-    TYELLOW,
-    TRED,
-    TGREEN,
-    TGREY
-};
-
-
 void MainWindow();
 void AboutWindow(Texture2D textures[]);
 void ChoosePlayers(Texture2D textures[]);
@@ -227,25 +204,25 @@ void ChoosePlayers(Texture2D textures[])
             {0, 0, 36, 36},
             0,
     };
-    Picture redPlayer = {
+    Picture redPlayerFrame = {
         textures[TRED],
         {337, 188, 49, 49},
-        {110, 95, redPlayer.mask.width * 3, redPlayer.mask.height * 3},
+        {110, 95, redPlayerFrame.mask.width * 3, redPlayerFrame.mask.height * 3},
     };
-    Picture bluePlayer = {
+    Picture bluePlayerFrame = {
         textures[TBLUE],
         {288, 194, 49, 49},
-        {420, 95, bluePlayer.mask.width * 3, bluePlayer.mask.height * 3}
+        {420, 95, bluePlayerFrame.mask.width * 3, bluePlayerFrame.mask.height * 3}
     };
-    Picture greenPlayer = {
+    Picture greenPlayerFrame = {
         textures[TGREEN],
         {337, 184, 49, 49},
-        {110, 325, greenPlayer.mask.height * 3, greenPlayer.mask.height * 3}
+        {110, 325, greenPlayerFrame.mask.height * 3, greenPlayerFrame.mask.height * 3}
     };
-    Picture yellowPlayer = {
+    Picture yellowPlayerFrame = {
         textures[TYELLOW],
         {190, 194, 49, 49},
-        {420, 325, yellowPlayer.mask.width * 3, yellowPlayer.mask.height * 3}
+        {420, 325, yellowPlayerFrame.mask.width * 3, yellowPlayerFrame.mask.height * 3}
     };
     Picture nameHolder = {
             textures[TGREY],
@@ -266,8 +243,8 @@ void ChoosePlayers(Texture2D textures[])
             threePlayers.texture = textures[TGREY];
             threePlayers.mask = (Rectangle) {185, 469, 36, 36};
 
-            yellowPlayer.texture = textures[TYELLOW];
-            yellowPlayer.mask = (Rectangle) {190, 194, 49, 49};
+            yellowPlayerFrame.texture = textures[TYELLOW];
+            yellowPlayerFrame.mask = (Rectangle) {190, 194, 49, 49};
         }
         else if (threePlayers.status) {
             threePlayers.texture = textures[TBLUE];
@@ -275,18 +252,18 @@ void ChoosePlayers(Texture2D textures[])
             fourPlayers.texture = textures[TGREY];
             fourPlayers.mask = (Rectangle) {185, 469, 36, 36};
 
-            yellowPlayer.texture = textures[TGREY];
-            yellowPlayer.mask = (Rectangle) {195, 0, 49, 49};
+            yellowPlayerFrame.texture = textures[TGREY];
+            yellowPlayerFrame.mask = (Rectangle) {195, 0, 49, 49};
         }
 
         DrawText("N° de jugadores:     3           4", 20, 40, 20, BLACK);
         DrawTextureRec(threePlayers.texture, threePlayers.mask, threePlayers.position, WHITE);
         DrawTextureRec(fourPlayers.texture, fourPlayers.mask, fourPlayers.position, WHITE);
 
-        DrawTexturePro(redPlayer.texture, redPlayer.mask, redPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
-        DrawTexturePro(bluePlayer.texture, bluePlayer.mask, bluePlayer.resize, (Vector2) {0, 0}, 0, WHITE);
-        DrawTexturePro(greenPlayer.texture, greenPlayer.mask, greenPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
-        DrawTexturePro(yellowPlayer.texture, yellowPlayer.mask, yellowPlayer.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(redPlayerFrame.texture, redPlayerFrame.mask, redPlayerFrame.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(bluePlayerFrame.texture, bluePlayerFrame.mask, bluePlayerFrame.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(greenPlayerFrame.texture, greenPlayerFrame.mask, greenPlayerFrame.resize, (Vector2) {0, 0}, 0, WHITE);
+        DrawTexturePro(yellowPlayerFrame.texture, yellowPlayerFrame.mask, yellowPlayerFrame.resize, (Vector2) {0, 0}, 0, WHITE);
 
         DrawTexturePro(profilePics, profileMasks[playerId[REDPLAYER]], (Rectangle) {125, 110,117, 105}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(profilePics, profileMasks[playerId[BLUEPLAYER]], (Rectangle) {435, 110,117, 105}, (Vector2) {0, 0}, 0, WHITE);
