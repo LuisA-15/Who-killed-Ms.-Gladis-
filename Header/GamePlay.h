@@ -1,38 +1,6 @@
-typedef struct accusation_struct {
-    int suspect;
-    int weapon;
-    int place;
-} Accusation;
-
-enum cards_enum {
-    NULLCARD,
-    MARYPOPPINS, CORNELIUS, KIM, JOEL, HILDA, MAX,
-    KNIFE, GUN, POISON, PANTIES, JAR, STEAK,
-    LIVING, LIBRARY, BATHROOM, KITCHEN, BEDROOM, GARAGE,
-};
-
-enum items_enum {
-    NOTES,
-    CASEFILE
-};
-
-enum movements_enum {
-    ABLE,
-    UNABLE,
-    SHORTCUT,
-    MLIVING,
-    MLIBRARY,
-    MBATHROOM,
-    MKITCHEN,
-    MBEDROOM,
-    MGARAGE
-};
-
-Accusation gameAnswer;
-
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
-void AssignCards(Player players[], int cardsInUse[]);
+void AssignCards(Player players[], int sortedCards[]);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -75,24 +43,20 @@ void Gameplay() {
     Rectangle detectiveMask = {(profilePics.width * 5) / 6, 0, 64, 64};
     Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
 
-    int boardGrid[20][10] = {};
-
     int activePlayer = REDPLAYER; // First player in turn order by default
 
     Player players[] = {redPlayer, bluePlayer, greenPlayer, yellowPlayer};
 
+    // Sort cards to each player and create a solution
     gameAnswer.suspect = GetRandomValue(MARYPOPPINS, MAX);
     gameAnswer.weapon = GetRandomValue(KNIFE, STEAK);
     gameAnswer.place = GetRandomValue(LIVING, GARAGE);
-    int sortedCards[18] = {gameAnswer.suspect, gameAnswer.weapon, gameAnswer.place};
 
+    int sortedCards[18] = {gameAnswer.suspect, gameAnswer.weapon, gameAnswer.place};
     for (int i = 2; i < 18; i++)
         sortedCards[i] = SortCards(sortedCards, i);
     AssignCards(players, sortedCards);
-    if (playerCount == 4) {
-        int unusedCards[3] = {sortedCards[15], sortedCards[16], sortedCards[17]};
-    }
-    
+
     while(!WindowShouldClose())
     {
         BeginDrawing();
@@ -158,7 +122,7 @@ int SortCards(int cardsInUse[], int index)
     return randomCard;
 }
 
-void AssignCards(Player players[], int cardsInUse[])
+void AssignCards(Player players[], int sortedCards[])
 {
     int cardsForEachPlayer = 5;
     if (playerCount == 4)
@@ -166,8 +130,18 @@ void AssignCards(Player players[], int cardsInUse[])
 
     for (int player = REDPLAYER; player <= YELLOWPLAYER; player++)
     {
+        // Assign to each player a part of the sorted sortedCards
         for (int i = 0; i < cardsForEachPlayer; i++)
-            players[player].cards[i] = cardsInUse[3 * (player + 1) + i];
+            players[player].cards[i] = sortedCards[3 * (player + 1) + i];
+    }
+
+    if (playerCount == 4) {
+        int unusedCards[3] = {sortedCards[15], sortedCards[16], sortedCards[17]};
+        for (int player = REDPLAYER; player <= YELLOWPLAYER; player++)
+        {
+            players[player].cards[3] = unusedCards[0];
+            players[player].cards[4] = unusedCards[1];
+            players[player].cards[5] = unusedCards[2];
+        }
     }
 }
-
