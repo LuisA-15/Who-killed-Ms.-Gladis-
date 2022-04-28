@@ -48,7 +48,8 @@ enum cards_enum {
 
 enum items_enum {
     NOTES,
-    CASEFILE
+    CASEFILE,
+    NOTESSELECTED
 };
 
 enum movements_enum {

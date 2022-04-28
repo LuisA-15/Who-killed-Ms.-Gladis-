@@ -1,6 +1,7 @@
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
+void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -21,16 +22,17 @@ void Gameplay() {
 
     Texture2D items = LoadTexture("../Assets/item icons.png");
     Rectangle knifeMask = {0, 0, 70, 70};
-    Rectangle gunMask = {items.width / 8, 0, 70, 70};
-    Rectangle poisonMask = {items.width * 2 / 8, 0, 70, 70};
-    Rectangle pantiesMask = {items.width * 3 / 8, 0, 70, 70};
-    Rectangle jarMask = {items.width * 4 / 8, 0, 70, 70};
-    Rectangle steakMask = {items.width * 5 / 6, 0, 70, 70};
+    Rectangle gunMask = {items.width / 9, 0, 70, 70};
+    Rectangle poisonMask = {items.width * 2 / 9, 0, 70, 70};
+    Rectangle pantiesMask = {items.width * 3 / 9, 0, 70, 70};
+    Rectangle jarMask = {items.width * 4 / 9, 0, 70, 70};
+    Rectangle steakMask = {items.width * 5 / 9, 0, 70, 70};
     Rectangle cardMasks[] = {knifeMask, gunMask, poisonMask, pantiesMask, jarMask, steakMask};
 
-    Rectangle notesMask = {items.width * 6 / 8, 0, 70, 70};
-    Rectangle casefileMask = {items.width * 7 / 8, 0, 70, 70};
-    Rectangle itemsMasks[] = {notesMask, casefileMask};
+    Rectangle notesMask = {items.width * 6 / 9, 0, 70, 70};
+    Rectangle casefileMask = {items.width * 7 / 9, 0, 70, 70};
+    Rectangle notesSelectedMask = {items.width * 8 / 9, 0, 70, 70};
+    Rectangle itemsMasks[] = {notesMask, casefileMask, notesSelectedMask};
 
     Texture2D notesSheet = LoadTexture("../Assets/notesSheet.png");
 
@@ -57,10 +59,21 @@ void Gameplay() {
         sortedCards[i] = SortCards(sortedCards, i);
     AssignCards(players, sortedCards);
 
+    Button showCardsButton = {
+        items,
+        {216, 85 + (activePlayer * 160)},
+        itemsMasks[NOTESSELECTED],
+        {showCardsButton.position.x, showCardsButton.position.y, 70, 70},
+        0
+    };
+
+    bool shouldShowCards[1] = {false};
+
     while(!WindowShouldClose())
     {
         BeginDrawing();
         ClearBackground(DARKBROWN);
+        mousePoint = GetMousePosition();
         DrawTextureRec(board, (Rectangle) {0, 0, board.width, board.height}, (Vector2) {400, 10}, RAYWHITE);
 
         // Draw Characters
@@ -85,6 +98,8 @@ void Gameplay() {
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 245}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 405}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
+        if (showCardsButton.status)
+            DrawTextureRec(items, itemsMasks[NOTESSELECTED], (Vector2) {216, 85}, RAYWHITE);
 
         // Active Player marker
         DrawRectangle(10, 35 + (160 * activePlayer), 20, 138, YELLOW);
@@ -101,9 +116,27 @@ void Gameplay() {
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
 
-
-//        DrawRectangle(0, 0, 1000, 900, (Color) {0, 0, 0, 100});
-
+        if (shouldShowCards[0])
+        {
+            ShowCards(guiTextures, shouldShowCards, mousePoint);
+        }
+        else
+        {
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+                    if (CheckCollisionPointRec(mousePoint, showCardsButton.collision)) {
+                        showCardsButton.status = 1;
+                    }
+                }
+            }
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                if (CheckCollisionPointRec(mousePoint, showCardsButton.collision)) {
+                    if (showCardsButton.status)
+                        shouldShowCards[0] = true;
+                }
+                showCardsButton.status = 0;
+            }
+        }
         EndDrawing();
     }
     CloseWindow();
@@ -144,4 +177,31 @@ void AssignCards(Player players[], int sortedCards[])
             players[player].cards[5] = unusedCards[2];
         }
     }
+}
+
+void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse)
+{
+    Button exit = {
+            guiT[TGREY],
+            {GetScreenWidth() - 50, GetScreenHeight() - 50},
+            {186, 433, 36, 36},
+            {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
+            0
+    };
+
+    if (CheckCollisionPointRec(mouse, exit.collision))
+    {
+        exit.texture = guiT[TRED];
+        exit.mask = (Rectangle) {381, 36, 36, 36};
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (CheckCollisionPointRec(mouse, exit.collision))
+        {
+            shouldShow[0] = false;
+        }
+    }
+
+    DrawRectangle(0, 0, GetScreenWidth(),  GetScreenHeight(), (Color) {0, 0, 0, 125});
+    DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 }
