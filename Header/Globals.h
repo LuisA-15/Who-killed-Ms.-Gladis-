@@ -25,10 +25,10 @@ typedef struct accusation_struct {
 } Accusation;
 
 enum texture_names {
-    TBLUE,
-    TYELLOW,
     TRED,
+    TBLUE,
     TGREEN,
+    TYELLOW,
     TGREY
 };
 
@@ -82,6 +82,10 @@ Player redPlayer;
 Player bluePlayer;
 Player greenPlayer;
 Player yellowPlayer;
+
+int activePlayer = REDPLAYER; // First player in turn order by default
+
+int playersNotes[4][18] = {};
 
 Accusation gameAnswer;
 

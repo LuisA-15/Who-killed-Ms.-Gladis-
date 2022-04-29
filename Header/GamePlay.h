@@ -1,7 +1,8 @@
+#include "stdio.h"
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
-void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse);
+void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sheet);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -13,12 +14,12 @@ void Gameplay() {
 
     Texture2D board = LoadTexture("../Assets/board/board.png");
 
-    Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
-    Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
     Texture2D TRed = LoadTexture("../Assets/redSheet.png");
+    Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
     Texture2D TGreen = LoadTexture("../Assets/greenSheet.png");
+    Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
     Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
-    Texture2D guiTextures[] = {TBlue, TYellow, TRed, TGreen, TGrey};
+    Texture2D guiTextures[] = {TRed, TBlue, TGreen, TYellow, TGrey};
 
     Texture2D items = LoadTexture("../Assets/item icons.png");
     Rectangle knifeMask = {0, 0, 70, 70};
@@ -44,8 +45,6 @@ void Gameplay() {
     Rectangle boyMask = {(profilePics.width * 4) / 6, 0, 64, 64};
     Rectangle detectiveMask = {(profilePics.width * 5) / 6, 0, 64, 64};
     Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
-
-    int activePlayer = REDPLAYER; // First player in turn order by default
 
     Player players[] = {redPlayer, bluePlayer, greenPlayer, yellowPlayer};
 
@@ -98,13 +97,16 @@ void Gameplay() {
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 245}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 405}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
+
+        // Update position/collision of button in real time
+        showCardsButton.position.y = 85 + (activePlayer * 160);
+        showCardsButton.collision.y = showCardsButton.position.y;
+
         if (showCardsButton.status)
-            DrawTextureRec(items, itemsMasks[NOTESSELECTED], (Vector2) {216, 85}, RAYWHITE);
+            DrawTextureRec(items, itemsMasks[NOTESSELECTED], (Vector2) {216, showCardsButton.position.y}, RAYWHITE);
 
         // Active Player marker
         DrawRectangle(10, 35 + (160 * activePlayer), 20, 138, YELLOW);
-
-//        DrawTextureRec(notesSheet, (Rectangle) {0, 0, notesSheet.width, notesSheet.height}, (Vector2) {0, 0}, RAYWHITE);
 
         // Draw Action buttons
         DrawTexturePro(guiTextures[TBLUE], (Rectangle) {0,94,190, 49}, (Rectangle) {1050, 350, 380, 90}, (Vector2) {0, 0}, 0, RAYWHITE);
@@ -118,7 +120,7 @@ void Gameplay() {
 
         if (shouldShowCards[0])
         {
-            ShowCards(guiTextures, shouldShowCards, mousePoint);
+            ShowCards(guiTextures, shouldShowCards, mousePoint, notesSheet);
         }
         else
         {
@@ -179,8 +181,17 @@ void AssignCards(Player players[], int sortedCards[])
     }
 }
 
-void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse)
+void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sheet)
 {
+    Picture notesSheet = {
+            sheet,
+            {0, 0, sheet.width, sheet.height},
+            {875, 10, sheet.width, GetScreenHeight() - 21}
+    };
+    Picture cross = {
+            guiT[TGREY],
+            {120, 478, 18, 18}
+    };
     Button exit = {
             guiT[TGREY],
             {GetScreenWidth() - 50, GetScreenHeight() - 50},
@@ -188,6 +199,31 @@ void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse)
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
             0
     };
+
+    DrawRectangle(0, 0, GetScreenWidth(),  GetScreenHeight(), (Color) {0, 0, 0, 125});
+    DrawTexturePro(notesSheet.texture, notesSheet.mask, notesSheet.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+    for (int i = 0; i < GARAGE; i++)
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, (Rectangle) {1233, 99 + (33 * i), 68, 33}))
+            {
+                if (playersNotes[activePlayer][i])
+                {
+                    playersNotes[activePlayer][i] = 0;
+                }
+                else
+                {
+                    playersNotes[activePlayer][i] = 1;
+                }
+            }
+        }
+        if (playersNotes[activePlayer][i] == 1)
+        {
+            DrawTextureRec(cross.texture, cross.mask, (Vector2) {1258, 105 + (33 * i)}, RAYWHITE);
+        }
+    }
 
     if (CheckCollisionPointRec(mouse, exit.collision))
     {
@@ -201,7 +237,5 @@ void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse)
             shouldShow[0] = false;
         }
     }
-
-    DrawRectangle(0, 0, GetScreenWidth(),  GetScreenHeight(), (Color) {0, 0, 0, 125});
     DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 }
