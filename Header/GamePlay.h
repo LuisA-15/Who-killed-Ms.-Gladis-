@@ -1,7 +1,7 @@
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
-void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sheet);
+void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sheet, Player players[], Texture2D items, Rectangle cardsMask[]);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -64,7 +64,6 @@ void Gameplay() {
         {showCardsButton.position.x, showCardsButton.position.y, 70, 70},
         0
     };
-
     bool shouldShowCards[1] = {false};
 
     while(!WindowShouldClose())
@@ -119,7 +118,7 @@ void Gameplay() {
 
         if (shouldShowCards[0])
         {
-            ShowCards(guiTextures, shouldShowCards, mousePoint, notesSheet);
+            ShowCards(guiTextures, shouldShowCards, mousePoint, notesSheet, players, items, cardMasks);
         }
         else
         {
@@ -167,6 +166,7 @@ void AssignCards(Player players[], int sortedCards[])
         // Assign to each player a part of the sorted sortedCards
         for (int i = 0; i < cardsForEachPlayer; i++)
             players[player].cards[i] = sortedCards[3 * (player + 1) + i];
+        players[player].cards[5] = NULLCARD;
     }
 
     if (playerCount == 4) {
@@ -180,7 +180,7 @@ void AssignCards(Player players[], int sortedCards[])
     }
 }
 
-void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sheet)
+void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sheet, Player players[], Texture2D items, Rectangle cardsMask[])
 {
     Picture notesSheet = {
             sheet,
@@ -199,9 +199,12 @@ void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sh
             0
     };
 
+    // Background transparent black screen
     DrawRectangle(0, 0, GetScreenWidth(),  GetScreenHeight(), (Color) {0, 0, 0, 125});
+
     DrawTexturePro(notesSheet.texture, notesSheet.mask, notesSheet.resize, (Vector2) {0, 0}, 0, RAYWHITE);
 
+    // Click to checkmark sheet function
     for (int i = 0; i < GARAGE; i++)
     {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -224,6 +227,14 @@ void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sh
         }
     }
 
+    // Show player's cards
+    for (int i = 0; i < 3; i++)
+    {
+        DrawTextureRec(items, cardsMask[players[activePlayer].cards[i]], (Vector2) {200, 100 + 100 * i}, RAYWHITE);
+//        DrawTextureRec(items, cardsMask[players[activePlayer].cards[i + 3]], (Vector2) {400, 100 * i}, RAYWHITE);
+    }
+
+    // Exit button
     if (CheckCollisionPointRec(mouse, exit.collision))
     {
         exit.texture = guiT[TRED];
@@ -236,5 +247,7 @@ void ShowCards(Texture2D guiT[], bool shouldShow[1], Vector2 mouse, Texture2D sh
             shouldShow[0] = false;
         }
     }
+
+
     DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 }
