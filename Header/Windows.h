@@ -9,12 +9,12 @@ void MainWindow()
     InitWindow(600, 500, "Who killed Mrs. Gladis?");
     Vector2 mousePoint;
 
-    Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
-    Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
     Texture2D TRed = LoadTexture("../Assets/redSheet.png");
+    Texture2D TBlue = LoadTexture("../Assets/blueSheet.png");
     Texture2D TGreen = LoadTexture("../Assets/greenSheet.png");
+    Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
     Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
-    Texture2D guiTextures[] = {TBlue, TYellow, TRed, TGreen, TGrey};
+    Texture2D guiTextures[] = {TRed, TBlue, TGreen, TYellow, TGrey};
 
     Button start = {
             guiTextures[TBLUE],
