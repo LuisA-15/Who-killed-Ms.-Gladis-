@@ -1,4 +1,3 @@
-#include "stdio.h"
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
