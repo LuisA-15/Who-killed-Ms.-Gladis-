@@ -47,6 +47,9 @@ void Gameplay() {
 
     Player players[] = {redPlayer, bluePlayer, greenPlayer, yellowPlayer};
 
+    // Load board collisions and movement available
+    CreateBoard();
+
     // Sort cards to each player and create a solution
     gameAnswer.suspect = GetRandomValue(MARYPOPPINS, MAX);
     gameAnswer.weapon = GetRandomValue(KNIFE, STEAK);
