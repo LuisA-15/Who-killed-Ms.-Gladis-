@@ -7,8 +7,10 @@
 int main()
 {
     SetTargetFPS(30);
+    InitAudioDevice();
     MainWindow();
     if (playerCount)
         Gameplay();
+    CloseAudioDevice();
     return 0;
 }
