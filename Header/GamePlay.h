@@ -101,7 +101,7 @@ void Gameplay() {
             0
     };
 
-    // Flag to show windows above board.
+    // Flags to show windows above board.
     bool shouldShowWindow[4] = {};
 
     while(!WindowShouldClose())
@@ -136,7 +136,7 @@ void Gameplay() {
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 405}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
 
-        // Update position/collision of button in real time
+        // Change show cards button depending on active player
         showCardsButton.position.y = 85 + (activePlayer * 160);
         showCardsButton.collision.y = showCardsButton.position.y;
 
@@ -156,6 +156,7 @@ void Gameplay() {
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
 
+        // Button functions
         if (shouldShowWindow[SHOWCARDS])
         {
             ShowCards(guiTextures, shouldShowWindow, mousePoint, notesSheet, players, items, cardMasks);
@@ -268,15 +269,15 @@ void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sh
             {
                 if (playersNotes[activePlayer][i])
                 {
-                    playersNotes[activePlayer][i] = 0;
+                    playersNotes[activePlayer][i] = false;
                 }
                 else
                 {
-                    playersNotes[activePlayer][i] = 1;
+                    playersNotes[activePlayer][i] = true;
                 }
             }
         }
-        if (playersNotes[activePlayer][i] == 1)
+        if (playersNotes[activePlayer][i])
         {
             DrawTextureRec(cross.texture, cross.mask, (Vector2) {1258, 105 + (33 * i)}, RAYWHITE);
         }
@@ -286,7 +287,7 @@ void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sh
     for (int i = 0; i < 3; i++)
     {
         DrawTextureRec(items, cardsMask[players[activePlayer].cards[i]], (Vector2) {200, 100 + 100 * i}, RAYWHITE);
-//        DrawTextureRec(items, cardsMask[players[activePlayer].cards[i + 3]], (Vector2) {400, 100 * i}, RAYWHITE);
+        DrawTextureRec(items, cardsMask[players[activePlayer].cards[i + 3]], (Vector2) {400, 100 * i}, RAYWHITE);
     }
 
     // Exit button
@@ -371,15 +372,19 @@ void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse)
     }
 
     DrawText("Opciones", 550, 85, 55, BLACK);
+
     DrawText("Volumen de la música", 330, 170, 30, BLACK);
     DrawTexturePro(volumeDown.texture, volumeDown.mask, volumeDown.collision, (Vector2) {0, 0}, 0, RAYWHITE);
     DrawTexturePro(volumeUp.texture, volumeUp.mask, volumeUp.collision, (Vector2) {0, 0}, 0, RAYWHITE);
     DrawTexturePro(musicSlider.texture, musicSlider.mask, musicSlider.resize, (Vector2) {0, 0}, 0, RAYWHITE);
     DrawTexturePro(sliderMark.texture, sliderMark.mask, sliderMark.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
     DrawTextureRec(exitGame.texture, exitGame.mask, (Vector2) {865, 575}, RAYWHITE);
     DrawText("Salir del Juego", 880, 590, 20, BLACK);
+
     DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 
+    // Change volume buttons function
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         if (CheckCollisionPointRec(mouse, volumeUp.collision))
