@@ -64,8 +64,16 @@ enum movements_enum {
     MGARAGE
 };
 
+enum extraWindows_enum {
+    SHOWCARDS,
+    OPTIONS,
+    REVEALCARD,
+    SUSPECT
+};
+
 void CreateBoard();
 
+float musicVolume = 0.8;
 
 int playerCount = 0;
 int playerId[] = {0, 1, 2, 3};
