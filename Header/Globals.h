@@ -64,6 +64,7 @@ enum movements_enum {
 };
 
 
+
 int playerCount = 0;
 int playerId[] = {0, 1, 2, 3};
 
@@ -77,8 +78,14 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer;
-Player bluePlayer;
+Player redPlayer =
+{
+
+};
+Player bluePlayer =
+{
+
+};
 Player greenPlayer;
 Player yellowPlayer;
 

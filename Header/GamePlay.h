@@ -1,6 +1,8 @@
+#include <stdio.h>
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
+void Movement(int activePlayer, Player player[]);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -101,6 +103,7 @@ void Gameplay() {
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
 
+        Movement(activePlayer, players);
 
 //        DrawRectangle(0, 0, 1000, 900, (Color) {0, 0, 0, 100});
 
@@ -144,4 +147,90 @@ void AssignCards(Player players[], int sortedCards[])
             players[player].cards[5] = unusedCards[2];
         }
     }
+}
+
+void Movement(int activePlayer, Player player[])
+{
+    switch (GetKeyPressed()) {
+        case KEY_A:
+            if(boardGrid[player[activePlayer].posx - 1][player[activePlayer].posy] != UNABLE)
+            {
+                player[activePlayer].posx -= 1; break;
+            }else if(boardGrid[player[activePlayer].posx - 1][player[activePlayer].posy] == SHORTCUT) {
+                for(int i = player[activePlayer].posx - 2; boardGrid[i][player[activePlayer].posy] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posx -= 1;
+                }player[activePlayer].posx -= 1;
+            };
+        case KEY_W:
+            if(boardGrid[player[activePlayer].posx][player[activePlayer].posy - 1] !=UNABLE)
+            {
+                player[activePlayer].posy -= 1; break;
+            }else if(boardGrid[player[activePlayer].posx][player[activePlayer].posy - 1] == SHORTCUT) {
+                for(int i = player[activePlayer].posy - 2; boardGrid[player[activePlayer].posx][i] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posy -= 1;
+                }player[activePlayer].posy -= 1;
+            };
+        case KEY_D:
+            if(boardGrid[player[activePlayer].posx + 1][player[activePlayer].posy] !=UNABLE)
+            {
+                player[activePlayer].posx += 1; break;
+            }else if(boardGrid[player[activePlayer].posx + 1][player[activePlayer].posy] == SHORTCUT) {
+                for(int i = player[activePlayer].posx + 2; boardGrid[i][player[activePlayer].posy] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posx += 1;
+                }player[activePlayer].posx += 1;
+            };
+        case KEY_S:
+            if(boardGrid[player[activePlayer].posx][player[activePlayer].posy + 1] !=UNABLE)
+            {
+                player[activePlayer].posy += 1; break;
+            }else if(boardGrid[player[activePlayer].posx][player[activePlayer].posy + 1] == SHORTCUT) {
+                for(int i = player[activePlayer].posy + 2; boardGrid[player[activePlayer].posx][i] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posy += 1;
+                }player[activePlayer].posy += 1;
+            };
+        case KEY_LEFT:
+            if(boardGrid[player[activePlayer].posx - 1][player[activePlayer].posy] != UNABLE)
+            {
+                player[activePlayer].posx -= 1; break;
+            }else if(boardGrid[player[activePlayer].posx - 1][player[activePlayer].posy] == SHORTCUT) {
+                for(int i = player[activePlayer].posx - 2; boardGrid[i][player[activePlayer].posy] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posx -= 1;
+                }player[activePlayer].posx -= 1;
+            };
+        case KEY_UP:
+            if(boardGrid[player[activePlayer].posx][player[activePlayer].posy - 1] !=UNABLE)
+            {
+                player[activePlayer].posy -= 1; break;
+            }else if(boardGrid[player[activePlayer].posx][player[activePlayer].posy - 1] == SHORTCUT) {
+                for(int i = player[activePlayer].posy - 2; boardGrid[player[activePlayer].posx][i] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posy -= 1;
+                }player[activePlayer].posy -= 1;
+            };
+        case KEY_RIGHT:
+            if(boardGrid[player[activePlayer].posx + 1][player[activePlayer].posy] !=UNABLE)
+            {
+                player[activePlayer].posx += 1; break;
+            }else if(boardGrid[player[activePlayer].posx + 1][player[activePlayer].posy] == SHORTCUT) {
+                for(int i = player[activePlayer].posx + 2; boardGrid[i][player[activePlayer].posy] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posx += 1;
+                }player[activePlayer].posx += 1;
+            };
+        case KEY_DOWN:
+            if(boardGrid[player[activePlayer].posx][player[activePlayer].posy + 1] !=UNABLE)
+            {
+                player[activePlayer].posy += 1; break;
+            }else if(boardGrid[player[activePlayer].posx][player[activePlayer].posy + 1] == SHORTCUT) {
+                for(int i = player[activePlayer].posy + 2; boardGrid[player[activePlayer].posx][i] == SHORTCUT; i--)
+                {
+                    player[activePlayer].posy += 1;
+                }player[activePlayer].posy += 1;
+            };
+    }printf("(%d, %d) ", player[activePlayer].posx, player[activePlayer].posy);
 }

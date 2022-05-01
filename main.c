@@ -1,5 +1,5 @@
 #include "raylib.h"
-#include "PlayerRelated.h"
+#include "Globals.h"
 #include "Animations.h"
 #include "Windows.h"
 #include "GamePlay.h"

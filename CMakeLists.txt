@@ -21,5 +21,5 @@ endif()
 
 include_directories(Header)
 
-add_executable(${PROJECT_NAME} main.c)
+add_executable(${PROJECT_NAME} main.c Header/GamePlay.h)
 target_link_libraries(${PROJECT_NAME} raylib)
