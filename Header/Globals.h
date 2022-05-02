@@ -13,8 +13,8 @@ typedef struct picture_struct {
 } Picture;
 
 typedef struct player_struct {
-    int posx;
-    int posy;
+    int row;
+    int column;
     int cards[6];
 } Player;
 
@@ -88,10 +88,10 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer;
-Player bluePlayer;
-Player greenPlayer;
-Player yellowPlayer;
+Player redPlayer = {18, 6};
+Player bluePlayer = {18, 8};
+Player greenPlayer = {19, 6};
+Player yellowPlayer= {19, 8};
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 

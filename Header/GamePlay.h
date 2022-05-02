@@ -3,6 +3,7 @@ int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
 void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D items, Rectangle cardsMask[]);
 void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse);
+void Movement(Player player[]);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -167,6 +168,8 @@ void Gameplay() {
         }
         else
         {
+            Movement(players);
+
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
                     if (CheckCollisionPointRec(mousePoint, showCardsButton.collision)) {
@@ -398,4 +401,50 @@ void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse)
                 musicVolume -= 0.2;
         }
     }
+}
+
+void Movement(Player player[])
+{
+    switch (GetKeyPressed()) {
+        case KEY_W:
+        case KEY_UP:
+
+            if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] == SHORTCUT)
+            {
+                player[activePlayer].row -= 15;
+            }
+            else if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] != UNABLE)
+            {
+                player[activePlayer].row -= 1;
+            }; break;
+        case KEY_A:
+        case KEY_LEFT:
+            if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] == SHORTCUT)
+            {
+                player[activePlayer].column -= 5;
+            }
+            else if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] != UNABLE) {
+                player[activePlayer].column -= 1;
+            }; break;
+        case KEY_S:
+        case KEY_DOWN:
+            if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] == SHORTCUT)
+            {
+                player[activePlayer].row += 15;
+            }
+            else if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] != UNABLE)
+            {
+                player[activePlayer].row += 1;
+            }; break;
+        case KEY_D:
+        case KEY_RIGHT:
+            if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] == SHORTCUT)
+            {
+                player[activePlayer].column += 5;
+            }
+            else if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] != UNABLE)
+            {
+                player[activePlayer].column += 1;
+            }; break;
+    };
 }
