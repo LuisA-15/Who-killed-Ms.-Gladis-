@@ -288,7 +288,7 @@ void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sh
         }
     }
 
-    // Show player's cardsT
+    // Show player's cards
     for (int i = 0; i < 3; i++)
     {
         Rectangle cardsResizeLeft = {
