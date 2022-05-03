@@ -1,7 +1,7 @@
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
-void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D items, Rectangle cardsMask[]);
+void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
 void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse);
 void Movement(Player player[]);
 
@@ -34,6 +34,8 @@ void Gameplay() {
     Rectangle jarMask = {items.width * 4 / 9, 0, 70, 70};
     Rectangle steakMask = {items.width * 5 / 9, 0, 70, 70};
     Rectangle cardMasks[] = {knifeMask, gunMask, poisonMask, pantiesMask, jarMask, steakMask};
+
+    Texture2D cards = LoadTexture("../Assets/Cards.png");
 
     Rectangle notesMask = {items.width * 6 / 9, 0, 70, 70};
     Rectangle casefileMask = {items.width * 7 / 9, 0, 70, 70};
@@ -160,7 +162,7 @@ void Gameplay() {
         // Button functions
         if (shouldShowWindow[SHOWCARDS])
         {
-            ShowCards(guiTextures, shouldShowWindow, mousePoint, notesSheet, players, items, cardMasks);
+            ShowCards(guiTextures, shouldShowWindow, mousePoint, notesSheet, players, cards);
         }
         else if (shouldShowWindow[OPTIONS])
         {
@@ -239,7 +241,7 @@ void AssignCards(Player players[], int sortedCards[])
     }
 }
 
-void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D items, Rectangle cardsMask[])
+void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT)
 {
     Picture notesSheet = {
             sheet,
@@ -286,11 +288,23 @@ void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sh
         }
     }
 
-    // Show player's cards
+    // Show player's cardsT
     for (int i = 0; i < 3; i++)
     {
-        DrawTextureRec(items, cardsMask[players[activePlayer].cards[i]], (Vector2) {200, 100 + 100 * i}, RAYWHITE);
-        DrawTextureRec(items, cardsMask[players[activePlayer].cards[i + 3]], (Vector2) {400, 100 * i}, RAYWHITE);
+        Rectangle cardsResizeLeft = {
+                256,
+                25 + (210 * i),
+                150,
+                192
+        };
+        Rectangle cardsResizeRight = {
+                450,
+                25 + (210 * i),
+                150,
+                192
+        };
+        DrawTexturePro(cardsT, (Rectangle) {100 * (players[activePlayer].cards[i] - 1), 0, 100, 128}, cardsResizeLeft, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(cardsT, (Rectangle) {100 * (players[activePlayer].cards[i + 3] - 1), 0, 100, 128}, cardsResizeRight, (Vector2) {0, 0}, 0, RAYWHITE);
     }
 
     // Exit button
@@ -408,7 +422,6 @@ void Movement(Player player[])
     switch (GetKeyPressed()) {
         case KEY_W:
         case KEY_UP:
-
             if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] == SHORTCUT)
             {
                 player[activePlayer].row -= 15;
@@ -416,7 +429,7 @@ void Movement(Player player[])
             else if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] != UNABLE)
             {
                 player[activePlayer].row -= 1;
-            }; break;
+            } break;
         case KEY_A:
         case KEY_LEFT:
             if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] == SHORTCUT)
@@ -425,7 +438,7 @@ void Movement(Player player[])
             }
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] != UNABLE) {
                 player[activePlayer].column -= 1;
-            }; break;
+            } break;
         case KEY_S:
         case KEY_DOWN:
             if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] == SHORTCUT)
@@ -435,7 +448,7 @@ void Movement(Player player[])
             else if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] != UNABLE)
             {
                 player[activePlayer].row += 1;
-            }; break;
+            } break;
         case KEY_D:
         case KEY_RIGHT:
             if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] == SHORTCUT)
@@ -445,6 +458,6 @@ void Movement(Player player[])
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] != UNABLE)
             {
                 player[activePlayer].column += 1;
-            }; break;
-    };
+            } break;
+    }
 }
