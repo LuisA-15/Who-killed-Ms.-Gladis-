@@ -1,8 +1,8 @@
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
-void ShowCards(Texture2D guiT[], bool flags[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
-void Options(Texture2D guiT[], bool flags[4], Vector2 mouse);
+void ShowCards(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
+void Options(Texture2D guiT[], Vector2 mouse);
 void Movement(Player player[]);
 
 void Gameplay() {
@@ -104,9 +104,6 @@ void Gameplay() {
             0
     };
 
-    // Flags to change game flow
-    bool gameFlags[6] = {};
-
     while(!WindowShouldClose())
     {
         if (gameFlags[GAMESHOULDCLOSE])
@@ -167,11 +164,11 @@ void Gameplay() {
         // Button functions
         if (gameFlags[SHOWCARDS])
         {
-            ShowCards(guiTextures, gameFlags, mousePoint, notesSheet, players, cards);
+            ShowCards(guiTextures, mousePoint, notesSheet, players, cards);
         }
         else if (gameFlags[OPTIONS])
         {
-            Options(guiTextures, gameFlags, mousePoint);
+            Options(guiTextures, mousePoint);
         }
         else
         {
@@ -206,6 +203,11 @@ void Gameplay() {
         EndDrawing();
     }
     CloseWindow();
+    if (gameFlags[GAMESHOULDRESTART])
+    {
+        RestartValues(playerCount);
+        Gameplay();
+    }
 }
 
 int SortCards(int cardsInUse[], int index)
@@ -246,7 +248,7 @@ void AssignCards(Player players[], int sortedCards[])
     }
 }
 
-void ShowCards(Texture2D guiT[], bool flags[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT)
+void ShowCards(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT)
 {
     Picture notesSheet = {
             sheet,
@@ -322,13 +324,13 @@ void ShowCards(Texture2D guiT[], bool flags[4], Vector2 mouse, Texture2D sheet, 
     {
         if (CheckCollisionPointRec(mouse, exit.collision))
         {
-            flags[SHOWCARDS] = false;
+            gameFlags[SHOWCARDS] = false;
         }
     }
     DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 }
 
-void Options(Texture2D guiT[], bool flags[4], Vector2 mouse)
+void Options(Texture2D guiT[], Vector2 mouse)
 {
     Picture window = {
             guiT[TGREY],
@@ -350,28 +352,30 @@ void Options(Texture2D guiT[], bool flags[4], Vector2 mouse)
             {665, 235},
             {0, 478, 39, 31},
             {665, 235, 39, 31},
-            0
     };
     Button volumeUp = {
             guiT[TGREY],
             {985, 235},
             {39, 478, 39, 31},
             {985, 235, 39, 31},
-            0
+    };
+    Button restartGame = {
+            guiT[TBLUE],
+            {565, 460},
+            {0, 94,190, 49},
+            {restartGame.position.x, restartGame.position.y, restartGame.mask.width * 1.25, restartGame.mask.height * 1.25},
     };
     Button exitGame = {
             guiT[TRED],
             {565, 550},
             {190, 0, 190, 49},
             {exitGame.position.x, exitGame.position.y, exitGame.mask.width * 1.25, exitGame.mask.height * 1.25},
-            0
     };
     Button exit = {
             guiT[TGREY],
             {GetScreenWidth() - 50, GetScreenHeight() - 50},
             {186, 433, 36, 36},
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
-            0
     };
 
     // Background transparent black screen
@@ -379,61 +383,29 @@ void Options(Texture2D guiT[], bool flags[4], Vector2 mouse)
 
     DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
 
-    if (flags[CONFIRMEXIT])
+    if (gameFlags[OPENCONFIRMEXIT])
     {
         DrawTexturePro(guiT[TGREEN], (Rectangle) {381, 0, 36, 36}, (Rectangle) {550, 350, 72, 72}, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(guiT[TRED], (Rectangle) {381, 36, 36, 36}, (Rectangle) {750, 350, 72, 72}, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawText("¿Estás seguro?", 475, 200, 50, BLACK);
+
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             // Confirm exit
             if (CheckCollisionPointRec(mouse, (Rectangle) {550, 350, 72, 72}))
             {
-                flags[GAMESHOULDCLOSE] = true;
+                gameFlags[GAMESHOULDCLOSE] = true;
             }
             // Exit game
             else if (CheckCollisionPointRec(mouse, (Rectangle) {750, 350, 72, 72}))
             {
-                flags[CONFIRMEXIT] = false;
+                gameFlags[OPENCONFIRMEXIT] = false;
+                gameFlags[GAMESHOULDRESTART] = false;
             }
         }
     }
     else
     {
-        // Exit button
-        if (CheckCollisionPointRec(mouse, exit.collision))
-        {
-            exit.texture = guiT[TRED];
-            exit.mask = (Rectangle) {381, 36, 36, 36};
-        }
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-        {
-            if (CheckCollisionPointRec(mouse, exit.collision))
-            {
-                flags[OPTIONS] = false;
-            }
-        }
-
-        DrawText("Opciones", 550, 85, 55, BLACK);
-
-        DrawText("Volumen de la música", 330, 170, 30, BLACK);
-        DrawTexturePro(volumeDown.texture, volumeDown.mask, volumeDown.collision, (Vector2) {0, 0}, 0, RAYWHITE);
-        DrawTexturePro(volumeUp.texture, volumeUp.mask, volumeUp.collision, (Vector2) {0, 0}, 0, RAYWHITE);
-        DrawTexturePro(musicSlider.texture, musicSlider.mask, musicSlider.resize, (Vector2) {0, 0}, 0, RAYWHITE);
-        DrawTexturePro(sliderMark.texture, sliderMark.mask, sliderMark.resize, (Vector2) {0, 0}, 0, RAYWHITE);
-
-        // Exit game function
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-        {
-            if (CheckCollisionPointRec(mouse, exitGame.collision))
-                flags[CONFIRMEXIT] = true;
-        }
-
-        DrawTexturePro(exitGame.texture, exitGame.mask, exitGame.collision, (Vector2) {0, 0}, 0, RAYWHITE);
-        DrawText("Salir del Juego", 587, 565, 27, BLACK);
-
-        DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
-
         // Change volume buttons function
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
@@ -448,6 +420,52 @@ void Options(Texture2D guiT[], bool flags[4], Vector2 mouse)
                     musicVolume -= 0.2;
             }
         }
+
+        // Restart game button
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, restartGame.collision))
+            {
+                gameFlags[OPENCONFIRMEXIT] = true;
+                gameFlags[GAMESHOULDRESTART] = true;
+            }
+        }
+
+        // Exit game button
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, exitGame.collision))
+                gameFlags[OPENCONFIRMEXIT] = true;
+        }
+
+        // Exit button
+        if (CheckCollisionPointRec(mouse, exit.collision))
+        {
+            exit.texture = guiT[TRED];
+            exit.mask = (Rectangle) {381, 36, 36, 36};
+        }
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, exit.collision))
+            {
+                gameFlags[OPTIONS] = false;
+            }
+        }
+
+        DrawText("Opciones", 550, 85, 55, BLACK);
+
+        DrawText("Volumen de la música", 330, 170, 30, BLACK);
+        DrawTexturePro(volumeDown.texture, volumeDown.mask, volumeDown.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(volumeUp.texture, volumeUp.mask, volumeUp.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(musicSlider.texture, musicSlider.mask, musicSlider.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(sliderMark.texture, sliderMark.mask, sliderMark.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+        DrawTexturePro(restartGame.texture, restartGame.mask, restartGame.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText("Reiniciar juego", 587, 475, 27, BLACK);
+        DrawTexturePro(exitGame.texture, exitGame.mask, exitGame.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText("Salir del Juego", 587, 565, 27, BLACK);
+
+        DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
     }
 }
 
