@@ -64,16 +64,23 @@ enum movements_enum {
     MGARAGE
 };
 
-enum extraWindows_enum {
+enum flags_enum {
     SHOWCARDS,
     OPTIONS,
     REVEALCARD,
-    SUSPECT
+    SUSPECT,
+    OPENCONFIRMEXIT,
+    GAMESHOULDCLOSE,
+    GAMESHOULDRESTART
 };
 
 void CreateBoard();
+void RestartValues(int PlayerCount);
 
-float musicVolume = 0.8;
+// Flags to change game flow
+bool gameFlags[7] = {};
+
+float musicVolume = 0.0;
 
 int playerCount = 0;
 int playerId[] = {0, 1, 2, 3};
@@ -145,4 +152,29 @@ void CreateBoard()
     }
     boardGrid[16][4] = SHORTCUT;
     boardGrid[16][7] = SHORTCUT;
+}
+
+void RestartValues(int PlayerCount)
+{
+    playerCount = PlayerCount;
+    activePlayer = REDPLAYER;
+    redPlayer.row = 18;
+    redPlayer.column = 6;
+    bluePlayer.row = 18;
+    bluePlayer.column = 8;
+    greenPlayer.row = 19;
+    greenPlayer.column = 6;
+    yellowPlayer.row = 19;
+    yellowPlayer.column = 8;
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int k = 0; k < 18; k++)
+            playersNotes[i][k] = 0;
+    }
+
+    for (int i = 0; i < 7; i++)
+    {
+        gameFlags[i] = false;
+    }
 }
