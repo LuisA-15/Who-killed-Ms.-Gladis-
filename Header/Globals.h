@@ -68,12 +68,14 @@ enum extraWindows_enum {
     SHOWCARDS,
     OPTIONS,
     REVEALCARD,
-    SUSPECT
+    SUSPECT,
+    CONFIRMEXIT,
+    GAMESHOULDCLOSE
 };
 
 void CreateBoard();
 
-float musicVolume = 0.8;
+float musicVolume = 0.0;
 
 int playerCount = 0;
 int playerId[] = {0, 1, 2, 3};

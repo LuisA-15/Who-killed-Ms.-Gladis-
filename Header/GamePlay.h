@@ -1,8 +1,8 @@
 void Gameplay();
 int SortCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int sortedCards[]);
-void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
-void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse);
+void ShowCards(Texture2D guiT[], bool flags[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
+void Options(Texture2D guiT[], bool flags[4], Vector2 mouse);
 void Movement(Player player[]);
 
 void Gameplay() {
@@ -104,11 +104,16 @@ void Gameplay() {
             0
     };
 
-    // Flags to show windows above board.
-    bool shouldShowWindow[4] = {};
+    // Flags to change game flow
+    bool gameFlags[6] = {};
 
     while(!WindowShouldClose())
     {
+        if (gameFlags[GAMESHOULDCLOSE])
+        {
+            EndDrawing();
+            break;
+        }
         SetMusicVolume(backgroundMusic, musicVolume);
         UpdateMusicStream(backgroundMusic);
         BeginDrawing();
@@ -160,13 +165,13 @@ void Gameplay() {
         DrawText("Opciones", 1220, 660, 30, BLACK);
 
         // Button functions
-        if (shouldShowWindow[SHOWCARDS])
+        if (gameFlags[SHOWCARDS])
         {
-            ShowCards(guiTextures, shouldShowWindow, mousePoint, notesSheet, players, cards);
+            ShowCards(guiTextures, gameFlags, mousePoint, notesSheet, players, cards);
         }
-        else if (shouldShowWindow[OPTIONS])
+        else if (gameFlags[OPTIONS])
         {
-            Options(guiTextures, shouldShowWindow, mousePoint);
+            Options(guiTextures, gameFlags, mousePoint);
         }
         else
         {
@@ -187,12 +192,12 @@ void Gameplay() {
                 if (CheckCollisionPointRec(mousePoint, showCardsButton.collision))
                 {
                     if (showCardsButton.status)
-                        shouldShowWindow[SHOWCARDS] = true;
+                        gameFlags[SHOWCARDS] = true;
                 }
                 else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                 {
                     if (optionsButton.status)
-                        shouldShowWindow[OPTIONS] = true;
+                        gameFlags[OPTIONS] = true;
                 }
                 showCardsButton.status = 0;
                 optionsButton.status = 0;
@@ -241,7 +246,7 @@ void AssignCards(Player players[], int sortedCards[])
     }
 }
 
-void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT)
+void ShowCards(Texture2D guiT[], bool flags[4], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT)
 {
     Picture notesSheet = {
             sheet,
@@ -317,13 +322,13 @@ void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sh
     {
         if (CheckCollisionPointRec(mouse, exit.collision))
         {
-            shouldShow[SHOWCARDS] = false;
+            flags[SHOWCARDS] = false;
         }
     }
     DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 }
 
-void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse)
+void Options(Texture2D guiT[], bool flags[4], Vector2 mouse)
 {
     Picture window = {
             guiT[TGREY],
@@ -338,7 +343,7 @@ void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse)
     Picture sliderMark = {
             guiT[TGREY],
             {190, 234, 28, 41},
-            {675 + (musicVolume * 295), 135, 56, 82}
+            {675 + (musicVolume * 295), 155, 42, 62}
     };
     Button volumeDown = {
             guiT[TGREY],
@@ -356,9 +361,9 @@ void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse)
     };
     Button exitGame = {
             guiT[TRED],
-            {700, 700},
+            {565, 550},
             {190, 0, 190, 49},
-            {exitGame.position.x, exitGame.position.y, exitGame.mask.width, exitGame.mask.height},
+            {exitGame.position.x, exitGame.position.y, exitGame.mask.width * 1.25, exitGame.mask.height * 1.25},
             0
     };
     Button exit = {
@@ -374,45 +379,74 @@ void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse)
 
     DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
 
-    // Exit button
-    if (CheckCollisionPointRec(mouse, exit.collision))
+    if (flags[CONFIRMEXIT])
     {
-        exit.texture = guiT[TRED];
-        exit.mask = (Rectangle) {381, 36, 36, 36};
+        DrawTexturePro(guiT[TGREEN], (Rectangle) {381, 0, 36, 36}, (Rectangle) {550, 350, 72, 72}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiT[TRED], (Rectangle) {381, 36, 36, 36}, (Rectangle) {750, 350, 72, 72}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText("¿Estás seguro?", 475, 200, 50, BLACK);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            // Confirm exit
+            if (CheckCollisionPointRec(mouse, (Rectangle) {550, 350, 72, 72}))
+            {
+                flags[GAMESHOULDCLOSE] = true;
+            }
+            // Exit game
+            else if (CheckCollisionPointRec(mouse, (Rectangle) {750, 350, 72, 72}))
+            {
+                flags[CONFIRMEXIT] = false;
+            }
+        }
     }
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    else
     {
+        // Exit button
         if (CheckCollisionPointRec(mouse, exit.collision))
         {
-            shouldShow[OPTIONS] = false;
+            exit.texture = guiT[TRED];
+            exit.mask = (Rectangle) {381, 36, 36, 36};
         }
-    }
-
-    DrawText("Opciones", 550, 85, 55, BLACK);
-
-    DrawText("Volumen de la música", 330, 170, 30, BLACK);
-    DrawTexturePro(volumeDown.texture, volumeDown.mask, volumeDown.collision, (Vector2) {0, 0}, 0, RAYWHITE);
-    DrawTexturePro(volumeUp.texture, volumeUp.mask, volumeUp.collision, (Vector2) {0, 0}, 0, RAYWHITE);
-    DrawTexturePro(musicSlider.texture, musicSlider.mask, musicSlider.resize, (Vector2) {0, 0}, 0, RAYWHITE);
-    DrawTexturePro(sliderMark.texture, sliderMark.mask, sliderMark.resize, (Vector2) {0, 0}, 0, RAYWHITE);
-
-    DrawTextureRec(exitGame.texture, exitGame.mask, (Vector2) {865, 575}, RAYWHITE);
-    DrawText("Salir del Juego", 880, 590, 20, BLACK);
-
-    DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
-
-    // Change volume buttons function
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        if (CheckCollisionPointRec(mouse, volumeUp.collision))
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            if (musicVolume < 1.0)
-                musicVolume += 0.2;
+            if (CheckCollisionPointRec(mouse, exit.collision))
+            {
+                flags[OPTIONS] = false;
+            }
         }
-        else if (CheckCollisionPointRec(mouse, volumeDown.collision))
+
+        DrawText("Opciones", 550, 85, 55, BLACK);
+
+        DrawText("Volumen de la música", 330, 170, 30, BLACK);
+        DrawTexturePro(volumeDown.texture, volumeDown.mask, volumeDown.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(volumeUp.texture, volumeUp.mask, volumeUp.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(musicSlider.texture, musicSlider.mask, musicSlider.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(sliderMark.texture, sliderMark.mask, sliderMark.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+        // Exit game function
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            if(musicVolume > 0.2)
-                musicVolume -= 0.2;
+            if (CheckCollisionPointRec(mouse, exitGame.collision))
+                flags[CONFIRMEXIT] = true;
+        }
+
+        DrawTexturePro(exitGame.texture, exitGame.mask, exitGame.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText("Salir del Juego", 587, 565, 27, BLACK);
+
+        DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+
+        // Change volume buttons function
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, volumeUp.collision))
+            {
+                if (musicVolume < 1.0)
+                    musicVolume += 0.2;
+            }
+            else if (CheckCollisionPointRec(mouse, volumeDown.collision))
+            {
+                if(musicVolume > 0.2)
+                    musicVolume -= 0.2;
+            }
         }
     }
 }
