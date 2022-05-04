@@ -13,10 +13,10 @@ void Gameplay() {
     MaximizeWindow();
     Vector2 mousePoint;
 
+    for (int i = 0; i < 2; i++)
+        bgMusic[i] = LoadMusicStream(bgMusicPaths[i]);
     nowPlaying = GetRandomValue(0, 1);
-    Music backgroundMusic = LoadMusicStream(bgMusicPaths[nowPlaying]);
-    SetMusicVolume(backgroundMusic, musicVolume);
-    PlayMusicStream(backgroundMusic);
+    PlayMusicStream(bgMusic[nowPlaying]);
 
     Texture2D board = LoadTexture("../Assets/board/board.png");
 
@@ -112,8 +112,8 @@ void Gameplay() {
             EndDrawing();
             break;
         }
-        SetMusicVolume(backgroundMusic, musicVolume);
-        UpdateMusicStream(backgroundMusic);
+        SetMusicVolume(bgMusic[nowPlaying], musicVolume);
+        UpdateMusicStream(bgMusic[nowPlaying]);
         BeginDrawing();
         ClearBackground(DARKBROWN);
         mousePoint = GetMousePosition();
@@ -430,6 +430,19 @@ void Options(Texture2D guiT[], Vector2 mouse)
             {
                 if(musicVolume > 0.2)
                     musicVolume -= 0.2;
+            }
+        }
+
+        // Change music button
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, changeMusic.collision))
+            {
+                PauseMusicStream(bgMusic[nowPlaying]);
+                nowPlaying = (nowPlaying + 1) % 2;
+                if (!IsMusicStreamPlaying(bgMusic[nowPlaying]))
+                    PlayMusicStream(bgMusic[nowPlaying]);
+                ResumeMusicStream(bgMusic[nowPlaying]);
             }
         }
 
