@@ -77,14 +77,16 @@ enum flags_enum {
 void CreateBoard();
 void RestartValues(int PlayerCount);
 
+Accusation gameAnswer;
+
 // Flags to change game flow
 bool gameFlags[7] = {};
 
-float musicVolume = 0.0;
+
+// Player related
 
 int playerCount = 0;
 int playerId[] = {0, 1, 2, 3};
-
 char names[][15] = {
         "Mary Poppins",
         "Cornelius",
@@ -94,20 +96,33 @@ char names[][15] = {
         "Max",
         ""
 };
-
 Player redPlayer = {18, 6};
 Player bluePlayer = {18, 8};
 Player greenPlayer = {19, 6};
 Player yellowPlayer= {19, 8};
 
 int activePlayer = REDPLAYER; // First player in turn order by default
-
 int playersNotes[4][18] = {};
 
-Accusation gameAnswer;
+
+// Music related
+
+int nowPlaying;
+float musicVolume = 0.6;
+Music bgMusic[2];
+char bgMusicNames[][50] = {
+        "When the Moons Reaching Out Stars",
+        "Air theme"
+};
+char bgMusicPaths[][100] = {
+        "../Assets/Sounds/Persona 3 OST  When the Moons Reaching Out Stars.mp3",
+        "../Assets/Sounds/airtheme.mp3"
+};
+
+
+// Board related
 
 int boardGrid[22][12] = {};
-
 void CreateBoard()
 {
     for (int i = 0; i < 12; i++)
@@ -153,6 +168,7 @@ void CreateBoard()
     boardGrid[16][4] = SHORTCUT;
     boardGrid[16][7] = SHORTCUT;
 }
+
 
 void RestartValues(int PlayerCount)
 {
