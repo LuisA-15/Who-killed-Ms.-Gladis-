@@ -1,6 +1,6 @@
 void Gameplay();
-int SortCards(int cardsInUse[18], int index);
-void AssignCards(Player players[], int sortedCards[]);
+int ShuffleCards(int cardsInUse[18], int index);
+void AssignCards(Player players[], int shuffledCards[]);
 void ShowCards(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
 void Options(Texture2D guiT[], Vector2 mouse);
 void Movement(Player player[]);
@@ -27,16 +27,8 @@ void Gameplay() {
     Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
     Texture2D guiTextures[] = {TRed, TBlue, TGreen, TYellow, TGrey};
 
-    Texture2D items = LoadTexture("../Assets/item icons.png");
-    Rectangle knifeMask = {0, 0, 70, 70};
-    Rectangle gunMask = {items.width / 9, 0, 70, 70};
-    Rectangle poisonMask = {items.width * 2 / 9, 0, 70, 70};
-    Rectangle pantiesMask = {items.width * 3 / 9, 0, 70, 70};
-    Rectangle jarMask = {items.width * 4 / 9, 0, 70, 70};
-    Rectangle steakMask = {items.width * 5 / 9, 0, 70, 70};
-    Rectangle cardMasks[] = {knifeMask, gunMask, poisonMask, pantiesMask, jarMask, steakMask};
-
     Texture2D cards = LoadTexture("../Assets/Cards.png");
+    Texture2D items = LoadTexture("../Assets/item icons.png");
 
     Rectangle notesMask = {items.width * 6 / 9, 0, 70, 70};
     Rectangle casefileMask = {items.width * 7 / 9, 0, 70, 70};
@@ -66,7 +58,7 @@ void Gameplay() {
 
     int sortedCards[18] = {gameAnswer.suspect, gameAnswer.weapon, gameAnswer.place};
     for (int i = 2; i < 18; i++)
-        sortedCards[i] = SortCards(sortedCards, i);
+        sortedCards[i] = ShuffleCards(sortedCards, i);
     AssignCards(players, sortedCards);
 
     Button showCardsButton = {
@@ -211,20 +203,20 @@ void Gameplay() {
     }
 }
 
-int SortCards(int cardsInUse[], int index)
+int ShuffleCards(int cardsInUse[], int index)
 {
     int randomCard = GetRandomValue(MARYPOPPINS, GARAGE);
     for (int i = index; i >= 0; i--)
     {
         if (randomCard == cardsInUse[i])
         {
-            return SortCards(cardsInUse, index);
+            return ShuffleCards(cardsInUse, index);
         }
     }
     return randomCard;
 }
 
-void AssignCards(Player players[], int sortedCards[])
+void AssignCards(Player players[], int shuffledCards[])
 {
     int cardsForEachPlayer = 5;
     if (playerCount == 4)
@@ -232,14 +224,14 @@ void AssignCards(Player players[], int sortedCards[])
 
     for (int player = REDPLAYER; player <= YELLOWPLAYER; player++)
     {
-        // Assign to each player a part of the sorted sortedCards
+        // Assign to each player a part of the shuffled cards
         for (int i = 0; i < cardsForEachPlayer; i++)
-            players[player].cards[i] = sortedCards[3 * (player + 1) + i];
+            players[player].cards[i] = shuffledCards[3 * (player + 1) + i];
         players[player].cards[5] = NULLCARD;
     }
 
     if (playerCount == 4) {
-        int unusedCards[3] = {sortedCards[15], sortedCards[16], sortedCards[17]};
+        int unusedCards[3] = {shuffledCards[15], shuffledCards[16], shuffledCards[17]};
         for (int player = REDPLAYER; player <= YELLOWPLAYER; player++)
         {
             players[player].cards[3] = unusedCards[0];
@@ -408,7 +400,7 @@ void Options(Texture2D guiT[], Vector2 mouse)
             {
                 gameFlags[GAMESHOULDCLOSE] = true;
             }
-            // Exit game
+            // Cancel exit
             else if (CheckCollisionPointRec(mouse, (Rectangle) {750, 350, 72, 72}))
             {
                 gameFlags[OPENCONFIRMEXIT] = false;
@@ -512,6 +504,7 @@ void Movement(Player player[])
             {
                 player[activePlayer].row -= 1;
             } break;
+
         case KEY_A:
         case KEY_LEFT:
             if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] == SHORTCUT)
@@ -521,6 +514,7 @@ void Movement(Player player[])
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] != UNABLE) {
                 player[activePlayer].column -= 1;
             } break;
+
         case KEY_S:
         case KEY_DOWN:
             if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] == SHORTCUT)
@@ -531,6 +525,7 @@ void Movement(Player player[])
             {
                 player[activePlayer].row += 1;
             } break;
+
         case KEY_D:
         case KEY_RIGHT:
             if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] == SHORTCUT)

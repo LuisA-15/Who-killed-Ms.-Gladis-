@@ -77,6 +77,8 @@ enum flags_enum {
 void CreateBoard();
 void RestartValues(int PlayerCount);
 
+Accusation gameAnswer;
+
 // Flags to change game flow
 bool gameFlags[7] = {};
 
@@ -102,7 +104,6 @@ Player yellowPlayer= {19, 8};
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};
 
-Accusation gameAnswer;
 
 // Music related
 
@@ -167,6 +168,7 @@ void CreateBoard()
     boardGrid[16][4] = SHORTCUT;
     boardGrid[16][7] = SHORTCUT;
 }
+
 
 void RestartValues(int PlayerCount)
 {
