@@ -106,6 +106,18 @@ int playersNotes[4][18] = {};
 
 Accusation gameAnswer;
 
+// Music related
+
+int nowPlaying;
+char bgMusicNames[][50] = {
+        "When the Moons Reaching Out Stars",
+        "Air theme"
+};
+char bgMusicPaths[][100] = {
+        "../Assets/Sounds/Persona 3 OST  When the Moons Reaching Out Stars.mp3",
+        "../Assets/Sounds/airtheme.mp3"
+};
+
 int boardGrid[22][12] = {};
 
 void CreateBoard()

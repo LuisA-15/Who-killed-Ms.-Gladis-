@@ -13,7 +13,8 @@ void Gameplay() {
     MaximizeWindow();
     Vector2 mousePoint;
 
-    Music backgroundMusic = LoadMusicStream("../Assets/Sounds/Persona 3 OST  When the Moons Reaching Out Stars.mp3");
+    nowPlaying = GetRandomValue(0, 1);
+    Music backgroundMusic = LoadMusicStream(bgMusicPaths[nowPlaying]);
     SetMusicVolume(backgroundMusic, musicVolume);
     PlayMusicStream(backgroundMusic);
 
@@ -359,6 +360,17 @@ void Options(Texture2D guiT[], Vector2 mouse)
             {39, 478, 39, 31},
             {985, 235, 39, 31},
     };
+    Button changeMusic = {
+            guiT[TGREY],
+            {385, 280},
+            {0, 98, 190, 45},
+            {changeMusic.position.x, changeMusic.position.y, changeMusic.mask.width * 1.25, changeMusic.mask.height * 1.25}
+    };
+    Picture musicNameHolder = {
+            guiT[TGREY],
+            {2, 52, 186, 45},
+            {650, 280, musicNameHolder.mask.width * 2, musicNameHolder.mask.height * 1.25}
+    };
     Button restartGame = {
             guiT[TBLUE],
             {565, 460},
@@ -459,6 +471,11 @@ void Options(Texture2D guiT[], Vector2 mouse)
         DrawTexturePro(volumeUp.texture, volumeUp.mask, volumeUp.collision, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(musicSlider.texture, musicSlider.mask, musicSlider.resize, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(sliderMark.texture, sliderMark.mask, sliderMark.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+        DrawTexturePro(changeMusic.texture, changeMusic.mask, changeMusic.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText("Cambiar música", 413, 297, 25, BLACK);
+        DrawTexturePro(musicNameHolder.texture, musicNameHolder.mask, musicNameHolder.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawText(bgMusicNames[nowPlaying], 660, 300, 25, BLACK);
 
         DrawTexturePro(restartGame.texture, restartGame.mask, restartGame.collision, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawText("Reiniciar juego", 587, 475, 27, BLACK);
