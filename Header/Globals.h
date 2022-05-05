@@ -167,12 +167,12 @@ void RestartValues(int PlayerCount)
     playerCount = PlayerCount;
     activePlayer = REDPLAYER;
     redPlayer.row = 18;
-    redPlayer.column = 6;
+    redPlayer.column = 5;
     bluePlayer.row = 18;
-    bluePlayer.column = 8;
-    greenPlayer.row = 19;
-    greenPlayer.column = 6;
-    yellowPlayer.row = 19;
+    bluePlayer.column = 6;
+    greenPlayer.row = 18;
+    greenPlayer.column = 7;
+    yellowPlayer.row = 18;
     yellowPlayer.column = 8;
 
     for (int i = 0; i < 4; i++)
