@@ -96,10 +96,10 @@ char names[][15] = {
         "Max",
         ""
 };
-Player redPlayer = {18, 6};
-Player bluePlayer = {18, 8};
-Player greenPlayer = {19, 6};
-Player yellowPlayer= {19, 8};
+Player redPlayer = {18, 5};
+Player bluePlayer = {18, 6};
+Player greenPlayer = {18, 7};
+Player yellowPlayer= {18, 8};
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};
@@ -122,51 +122,43 @@ char bgMusicPaths[][100] = {
 
 // Board related
 
-int boardGrid[22][12] = {};
+int boardGrid[22][14] = {};
 void CreateBoard()
 {
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 14; i++)
     {
         boardGrid[0][i] = UNABLE;
         boardGrid[1][i] = UNABLE;
         boardGrid[20][i] = UNABLE;
         boardGrid[21][i] = UNABLE;
+
         boardGrid[i][0] = UNABLE;
         boardGrid[i][1] = UNABLE;
-        boardGrid[i][10] = UNABLE;
-        boardGrid[i][11] = UNABLE;
-        boardGrid[i + 12][0] = UNABLE;
-        boardGrid[i + 12][1] = UNABLE;
-        boardGrid[i + 9][10] = UNABLE;
-        boardGrid[i + 9][11] = UNABLE;
+        boardGrid[i][12] = UNABLE;
+        boardGrid[i][13] = UNABLE;
+        boardGrid[i + 6][0] = UNABLE;
+        boardGrid[i + 6][1] = UNABLE;
+        boardGrid[i + 6][12] = UNABLE;
+        boardGrid[i + 6][13] = UNABLE;
     }
-    for (int i = 5; i < 17; i++)
+
+    for (int i = 0; i < 12; i++)
     {
-        boardGrid[i][5] = UNABLE;
-        boardGrid[i][6] = UNABLE;
+        for (int k = 0; k < 4; k++)
+        {
+            boardGrid[5 + i][5 + k] = SHORTCUT;
+        }
     }
-    for (int i = 0; i < 4; i++)
+
+    for (int i = 0; i < 3; i++)
     {
-        boardGrid[i + 12][1] = MLIVING;
-        boardGrid[i + 4][1] = MLIBRARY;
-        boardGrid[1][i + 4] = MBATHROOM;
-        boardGrid[i + 4][10] = MKITCHEN;
-        boardGrid[i + 12][10] = MBEDROOM;
-        boardGrid[20][i + 4] = MGARAGE;
+        boardGrid[14 + i][1] = MLIVING;
+        boardGrid[6 + i][1] = MLIBRARY;
+        boardGrid[1][4 + i] = MBATHROOM;
+        boardGrid[7 + i][12] = MKITCHEN;
+        boardGrid[16 + i][12] = MBEDROOM;
+        boardGrid[20][6 + i] = MGARAGE;
     }
-    for (int i = 4; i < 8; i++)
-    {
-        boardGrid[4][i] = SHORTCUT;
-        boardGrid[17][i] = SHORTCUT;
-        boardGrid[i][4] = SHORTCUT;
-        boardGrid[i + 4][4] = SHORTCUT;
-        boardGrid[i + 8][4] = SHORTCUT;
-        boardGrid[i][7] = SHORTCUT;
-        boardGrid[i + 4][7] = SHORTCUT;
-        boardGrid[i + 8][7] = SHORTCUT;
-    }
-    boardGrid[16][4] = SHORTCUT;
-    boardGrid[16][7] = SHORTCUT;
 }
 
 
@@ -175,12 +167,12 @@ void RestartValues(int PlayerCount)
     playerCount = PlayerCount;
     activePlayer = REDPLAYER;
     redPlayer.row = 18;
-    redPlayer.column = 6;
+    redPlayer.column = 5;
     bluePlayer.row = 18;
-    bluePlayer.column = 8;
-    greenPlayer.row = 19;
-    greenPlayer.column = 6;
-    yellowPlayer.row = 19;
+    bluePlayer.column = 6;
+    greenPlayer.row = 18;
+    greenPlayer.column = 7;
+    yellowPlayer.row = 18;
     yellowPlayer.column = 8;
 
     for (int i = 0; i < 4; i++)
