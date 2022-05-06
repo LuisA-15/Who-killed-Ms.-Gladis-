@@ -5,6 +5,9 @@ void ShowCards(Texture2D guiT[], bool shouldShow[4], Vector2 mouse, Texture2D sh
 void Options(Texture2D guiT[], bool shouldShow[4], Vector2 mouse);
 void Movement(Player player[]);
 
+Piece LoadPlayerPiece(Piece current);
+Piece UpdatePosition(Piece current);
+
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
@@ -50,6 +53,18 @@ void Gameplay() {
     Rectangle boyMask = {(profilePics.width * 4) / 6, 0, 64, 64};
     Rectangle detectiveMask = {(profilePics.width * 5) / 6, 0, 64, 64};
     Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
+
+    Texture2D PlayerPiece = LoadTexture("../Assets/PLAYERS.png");
+
+    Piece RedPlayer = {18, 6, .piece.texture = PlayerPiece,
+                       .piece.mask.height = PlayerPiece.height/4};
+    Piece BluePlayer = {18, 8, .piece.texture = PlayerPiece,
+                        .piece.mask.height = RedPlayer.piece.mask.height + PlayerPiece.height/4};
+    Piece GreenPlayer = {19, 6, .piece.texture = PlayerPiece,
+                        .piece.mask.height = BluePlayer.piece.mask.height + PlayerPiece.height/4};
+    Piece YellowPlayer = {19, 8, .piece.texture = PlayerPiece,
+                          .piece.mask.height = GreenPlayer.piece.mask.height + PlayerPiece.height/4};
+
 
     Player players[] = {redPlayer, bluePlayer, greenPlayer, yellowPlayer};
 
@@ -408,7 +423,6 @@ void Movement(Player player[])
     switch (GetKeyPressed()) {
         case KEY_W:
         case KEY_UP:
-
             if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] == SHORTCUT)
             {
                 player[activePlayer].row -= 15;
@@ -417,6 +431,7 @@ void Movement(Player player[])
             {
                 player[activePlayer].row -= 1;
             }; break;
+
         case KEY_A:
         case KEY_LEFT:
             if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] == SHORTCUT)
@@ -426,6 +441,7 @@ void Movement(Player player[])
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] != UNABLE) {
                 player[activePlayer].column -= 1;
             }; break;
+
         case KEY_S:
         case KEY_DOWN:
             if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] == SHORTCUT)
@@ -436,6 +452,8 @@ void Movement(Player player[])
             {
                 player[activePlayer].row += 1;
             }; break;
+
+
         case KEY_D:
         case KEY_RIGHT:
             if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] == SHORTCUT)

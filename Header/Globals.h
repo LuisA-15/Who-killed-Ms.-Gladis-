@@ -24,6 +24,11 @@ typedef struct accusation_struct {
     int place;
 } Accusation;
 
+typedef struct player_piece_struct{
+    Player currentPlayer;
+    Picture piece;
+} Piece;
+
 enum texture_names {
     TRED,
     TBLUE,
@@ -88,10 +93,15 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer = {18, 6};
-Player bluePlayer = {18, 8};
-Player greenPlayer = {19, 6};
-Player yellowPlayer= {19, 8};
+Piece RedPlayer = {18, 6};
+Piece BluePlayer = {18, 8};
+Piece GreenPlayer = {19, 6};
+Piece YellowPlayer = {19, 8};
+
+Player redPlayer;
+Player bluePlayer;
+Player greenPlayer;
+Player yellowPlayer;
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 
