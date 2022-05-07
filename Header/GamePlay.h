@@ -56,14 +56,14 @@ void Gameplay() {
 
     Texture2D PlayerPiece = LoadTexture("../Assets/PLAYERS.png");
 
-    Piece RedPlayer = {18, 6, .piece.texture = PlayerPiece,
+    Piece RedPiece = {18, 6, .piece.texture = PlayerPiece,
                        .piece.mask.height = PlayerPiece.height/4};
-    Piece BluePlayer = {18, 8, .piece.texture = PlayerPiece,
-                        .piece.mask.height = RedPlayer.piece.mask.height + PlayerPiece.height/4};
-    Piece GreenPlayer = {19, 6, .piece.texture = PlayerPiece,
-                        .piece.mask.height = BluePlayer.piece.mask.height + PlayerPiece.height/4};
-    Piece YellowPlayer = {19, 8, .piece.texture = PlayerPiece,
-                          .piece.mask.height = GreenPlayer.piece.mask.height + PlayerPiece.height/4};
+    Piece BluePiece = {18, 8, .piece.texture = PlayerPiece,
+                        .piece.mask.height = RedPiece.piece.mask.height + PlayerPiece.height/4};
+    Piece GreenPiece = {19, 6, .piece.texture = PlayerPiece,
+                        .piece.mask.height = BluePiece.piece.mask.height + PlayerPiece.height/4};
+    Piece YellowPiece = {19, 8, .piece.texture = PlayerPiece,
+                          .piece.mask.height = GreenPiece.piece.mask.height + PlayerPiece.height/4};
 
 
     Player players[] = {redPlayer, bluePlayer, greenPlayer, yellowPlayer};

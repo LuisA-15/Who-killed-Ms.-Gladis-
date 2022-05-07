@@ -93,10 +93,10 @@ char names[][15] = {
         ""
 };
 
-Piece RedPlayer = {18, 6};
-Piece BluePlayer = {18, 8};
-Piece GreenPlayer = {19, 6};
-Piece YellowPlayer = {19, 8};
+Piece RedPiece = {18, 6};
+Piece BluePiece = {18, 8};
+Piece GreenPiece = {19, 6};
+Piece YellowPiece = {19, 8};
 
 Player redPlayer;
 Player bluePlayer;
