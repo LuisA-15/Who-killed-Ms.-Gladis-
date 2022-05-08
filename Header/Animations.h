@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "stdio.h"
 
 typedef struct sprite_struct
 {
@@ -19,6 +20,7 @@ typedef struct sprite_graphics_struct
 Sprite LoadSprite(const char *filename, int frameCount);
 SpriteGraphics LoadSpriteGraphics(const char *filename, int frameCount, float refresh);
 SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g);
+Piece UpdatePosition(Piece current, int x, int y);
 
 
 Sprite LoadSprite(const char *filename, int frameCount)
@@ -53,4 +55,26 @@ SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g)
     }
 
     return g;
+}
+
+Piece UpdatePosition(Piece current, int x, int y) {
+    float time = 0;
+    int positionUpdatedX = current.piece.resize.x + x * 18;
+    int positionUpdatedY = current.piece.resize.y + y * 18;
+
+    while (current.piece.resize.y < positionUpdatedY) {
+        if (time >= 0.2) {
+            current.piece.resize.y += y;
+        }
+        DrawTexturePro(current.piece.texture, current.piece.mask, current.piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+        time += GetFrameTime();
+    }
+    while (current.piece.resize.x < positionUpdatedX) {
+        if (time >= 0.2) {
+            current.piece.resize.x += x;
+        }
+        DrawTexturePro(current.piece.texture, current.piece.mask, current.piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+        time += GetFrameTime();
+    }
+    printf("(%d, %d)", x, y);
 }

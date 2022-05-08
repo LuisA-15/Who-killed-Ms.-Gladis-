@@ -4,13 +4,14 @@
 #include "Windows.h"
 #include "GamePlay.h"
 
+
 int main()
 {
     SetTargetFPS(30);
-    InitAudioDevice();
-    MainWindow();
-    if (playerCount)
+    //InitAudioDevice();
+    //MainWindow();
+    //if (playerCount)
         Gameplay();
-    CloseAudioDevice();
+    //CloseAudioDevice();
     return 0;
 }

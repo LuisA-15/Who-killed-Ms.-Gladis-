@@ -24,6 +24,11 @@ typedef struct accusation_struct {
     int place;
 } Accusation;
 
+typedef struct player_piece_struct{
+    Player PlayerPiece;
+    Picture piece;
+} Piece;
+
 enum texture_names {
     TRED,
     TBLUE,
@@ -96,19 +101,24 @@ char names[][15] = {
         "Max",
         ""
 };
-Player redPlayer = {18, 5};
-Player bluePlayer = {18, 6};
-Player greenPlayer = {18, 7};
-Player yellowPlayer= {18, 8};
+
+Player redPlayer;
+Player bluePlayer;
+Player greenPlayer;
+Player yellowPlayer;
+
+Piece RedPiece;
+Piece BluePiece;
+Piece GreenPiece;
+Piece YellowPiece;
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};
 
-
 // Music related
 
 int nowPlaying;
-float musicVolume = 0.6;
+float musicVolume = 0.0;
 Music bgMusic[2];
 char bgMusicNames[][50] = {
         "When the Moons Reaching Out Stars",
