@@ -4,6 +4,7 @@ void AssignCards(Player players[], int shuffledCards[]);
 void ShowCards(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
 void Options(Texture2D guiT[], Vector2 mouse);
 void Movement(Player player[]);
+void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -36,6 +37,16 @@ void Gameplay() {
     Rectangle itemsMasks[] = {notesMask, casefileMask, notesSelectedMask};
 
     Texture2D notesSheet = LoadTexture("../Assets/notesSheet.png");
+
+    Texture2D placesNames = LoadTexture("../Assets/Places names.png");
+    Rectangle pNamesMasks[] = {
+            {0, 0, 59, 29},
+            {59, 0, 72, 14},
+            {131, 0, 87, 14},
+            {218, 0, 72, 14},
+            {290, 0, 77, 14},
+            {367, 0, 70, 14}
+    };
 
     Texture2D profilePics = LoadTexture("../Assets/charProfiles.png");
     Rectangle gladisMask = {0, 0, 64, 64};
@@ -153,6 +164,9 @@ void Gameplay() {
         DrawText("Sospechar", 1080, 465, 50, BLACK);
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
+
+        // Draw Name of nearby place
+        DrawNameOfPlace(placesNames, pNamesMasks, players[activePlayer]);
 
         // Button functions
         if (gameFlags[SHOWCARDS])
@@ -536,5 +550,45 @@ void Movement(Player player[])
             {
                 player[activePlayer].column += 1;
             } break;
+    }
+}
+
+void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP)
+{
+    if (activeP.column <= 3)
+    {
+        if (activeP.row >= 13 && activeP.row <= 17)
+            DrawTexturePro(placeT, placesMasks[0],
+                           (Rectangle) {520, 450, placesMasks[0].width, placesMasks[0].height},
+                           (Vector2) {0, 0}, -90, RAYWHITE);
+        else if (activeP.row >= 5 && activeP.row <= 9)
+            DrawTexturePro(placeT, placesMasks[1],
+                           (Rectangle) {530, 310, placesMasks[1].width, placesMasks[1].height},
+                           (Vector2) {0, 0}, -90, RAYWHITE);
+    }
+    else if (activeP.column >= 3 && activeP.column <= 7)
+    {
+        if (activeP.row <= 3)
+            DrawTexturePro(placeT, placesMasks[2],
+                           (Rectangle) {580, 140, placesMasks[2].width, placesMasks[2].height},
+                           (Vector2) {0, 0}, 0, RAYWHITE);
+    }
+    else if (activeP.column >= 10)
+    {
+        if (activeP.row >= 8 && activeP.row <= 12)
+            DrawTexturePro(placeT, placesMasks[3],
+                           (Rectangle) {780, 259, placesMasks[3].width, placesMasks[3].height},
+                           (Vector2) {0, 0}, 90, RAYWHITE);
+        else if (activeP.row >= 15 && activeP.row <= 19)
+            DrawTexturePro(placeT, placesMasks[4],
+                           (Rectangle) {780, 420, placesMasks[4].width, placesMasks[4].height},
+                           (Vector2) {0, 0}, 90, RAYWHITE);
+    }
+    if (activeP.column >= 5 && activeP.column <= 9)
+    {
+        if (activeP.row >= 18)
+            DrawTexturePro(placeT, placesMasks[5],
+                           (Rectangle) {700, 540, placesMasks[5].width, placesMasks[5].height},
+                           (Vector2) {0, 0}, 180, RAYWHITE);
     }
 }
