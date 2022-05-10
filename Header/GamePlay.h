@@ -6,7 +6,7 @@ void Options(Texture2D guiT[], Vector2 mouse);
 void Movement(Player player[]);
 void UpdateRolledNumber(Player players[]);
 void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP);
-
+void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cards);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -82,12 +82,14 @@ void Gameplay() {
     gameAnswer.weapon = GetRandomValue(KNIFE, STEAK);
     gameAnswer.place = GetRandomValue(LIVING, GARAGE);
 
+    int allCards[18] = {};
+
     int sortedCards[18] = {gameAnswer.suspect, gameAnswer.weapon, gameAnswer.place};
     for (int i = 2; i < 18; i++)
         sortedCards[i] = ShuffleCards(sortedCards, i);
     AssignCards(players, sortedCards);
 
-    Button showCardsButton = {
+        Button showCardsButton = {
         items,
         {216, 85 + (activePlayer * 160)},
         itemsMasks[NOTESSELECTED],
@@ -238,6 +240,10 @@ void Gameplay() {
         {
             Options(guiTextures, mousePoint);
         }
+        else if (gameFlags[SUSPECT])
+        {
+            ShowAccusationInterface(guiTextures, mousePoint, notesSheet, players, cards);
+        }
         else
         {
             if(roll > 0)
@@ -257,6 +263,12 @@ void Gameplay() {
                             rollDice.status = 1;
                             rollDice.mask = (Rectangle) {0, 49, 190, 45};
                         }
+                    }
+                    else if(CheckCollisionPointRec(mousePoint, suspectButton.collision))
+                    {
+                        suspectButton.status = 1;
+                        suspectButton.mask = (Rectangle) {0, 192, 190, 49};
+
                     }
                     else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                     {
@@ -278,6 +290,14 @@ void Gameplay() {
                         time = 0;
                     }
                 }
+                else if (CheckCollisionPointRec(mousePoint, suspectButton.collision))
+                {
+                    if(suspectButton.status)
+                    {
+                        gameFlags[SUSPECT] = true;
+
+                    }
+                }
                 else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                 {
                     if (optionsButton.status)
@@ -286,6 +306,9 @@ void Gameplay() {
                 showCardsButton.status = 0;
                 rollDice.status = 0;
                 optionsButton.status = 0;
+                suspectButton.status = 0;
+                suspectButton.mask = (Rectangle) {0, 0, 190, 45};
+
                 if (!gameFlags[DICEWASROLLED])
                     rollDice.mask = (Rectangle) {0,94,190, 49};
             }
@@ -726,4 +749,103 @@ void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP)
                            (Rectangle) {700, 540, placesMasks[5].width, placesMasks[5].height},
                            (Vector2) {0, 0}, 180, RAYWHITE);
     }
+}
+
+
+void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cards)
+{
+    Picture notesSheet = {
+            sheet,
+            {0, 0, sheet.width, sheet.height},
+            {875, 10, sheet.width, GetScreenHeight() - 21}
+    };
+    Picture cross = {
+            guiT[TGREY],
+            {120, 478, 18, 18}
+    };
+    Button exit = {
+            guiT[TGREY],
+            {GetScreenWidth() - 50, GetScreenHeight() - 50},
+            {186, 433, 36, 36},
+            {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
+            0
+    };
+
+    // Background transparent black screen
+    DrawRectangle(0, 0, GetScreenWidth(),  GetScreenHeight(), (Color) {0, 0, 0, 125});
+
+    DrawTexturePro(notesSheet.texture, notesSheet.mask, notesSheet.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+    Button selectSuspects = {guiT[TGREY],
+                             {0, 0},
+                             {185, 469, 36, 36},
+                             };
+
+    for(int i = 0; i < 6; i++)
+    {
+
+        Rectangle cardsResizeTop = {
+                20 + (150 * i),
+                50,
+                100,
+                128
+        };
+        Rectangle cardsResizeMid = {
+                20 + (150 * i),
+                230,
+                100,
+                128
+        };
+        Rectangle cardsResizeBottom = {
+                20 + (150 * i),
+                410,
+                100,
+                128
+        };
+
+        DrawTexturePro(cards, (Rectangle) {100 * i, 0, 100, 128}, cardsResizeTop, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(cards, (Rectangle) {100 * (i + 6), 0, 100, 128}, cardsResizeMid, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(cards, (Rectangle) {100 * (i + 12), 0, 100, 128}, cardsResizeBottom, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150*i), 185, 36, 36}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150*i), 365, 36, 36}, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle){55 + (150*i), 545, 36, 36}, (Vector2) {0, 0}, 0, RAYWHITE);
+    }
+
+    // Click to checkmark sheet function
+    for (int i = 0; i < GARAGE; i++)
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, (Rectangle) {1233, 99 + (33 * i), 68, 33}))
+            {
+                if (playersNotes[activePlayer][i])
+                {
+                    playersNotes[activePlayer][i] = false;
+                }
+                else
+                {
+                    playersNotes[activePlayer][i] = true;
+                }
+            }
+        }
+        if (playersNotes[activePlayer][i])
+        {
+            DrawTextureRec(cross.texture, cross.mask, (Vector2) {1258, 105 + (33 * i)}, RAYWHITE);
+        }
+    }
+
+    // Exit button
+    if (CheckCollisionPointRec(mouse, exit.collision))
+    {
+        exit.texture = guiT[TRED];
+        exit.mask = (Rectangle) {381, 36, 36, 36};
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (CheckCollisionPointRec(mouse, exit.collision))
+        {
+            gameFlags[SUSPECT] = false;
+        }
+    }
+    DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
 }

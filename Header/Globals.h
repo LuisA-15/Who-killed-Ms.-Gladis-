@@ -33,6 +33,7 @@ typedef struct player_struct {
     int cards[6];
     int movementLog[8][2];
     Picture piece;
+    int suspicion[3];
 } Player;
 
 typedef struct accusation_struct {
