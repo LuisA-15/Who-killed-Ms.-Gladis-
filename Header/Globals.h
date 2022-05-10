@@ -122,11 +122,18 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer = {18, 5, .piece.mask = (Rectangle){0, 0, 15, 17},
-                    .piece.resize = (Rectangle){620, 465, 15, 17}};
-Player bluePlayer = {18, 6};
-Player greenPlayer = {18, 7};
-Player yellowPlayer= {18, 8};
+Player redPlayer = {18, 5,
+        .piece.mask = (Rectangle){0, 0, 15, 17},
+        .piece.resize = (Rectangle){620, 465, 15, 17}};
+Player bluePlayer = {18, 6,
+        .piece.mask = (Rectangle){0, 17, 15, 15},
+        .piece.resize = (Rectangle){638, 465, 15, 15}};
+Player greenPlayer = {18, 7,
+        .piece.mask = (Rectangle){0, 32,15, 16},
+        .piece.resize = (Rectangle){654, 465, 15, 16}};
+Player yellowPlayer= {18, 8,
+        .piece.mask = (Rectangle){0, 48, 15, 16},
+        .piece.resize = (Rectangle){672, 465, 15, 16}};
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};

@@ -6,6 +6,7 @@ void Options(Texture2D guiT[], Vector2 mouse);
 void Movement(Player player[]);
 void UpdateRolledNumber(Player players[]);
 void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP);
+void ChangeTurn(Player players[]);
 
 
 void Gameplay() {
@@ -88,11 +89,11 @@ void Gameplay() {
     AssignCards(players, sortedCards);
 
     Button showCardsButton = {
-        items,
-        {216, 85 + (activePlayer * 160)},
-        itemsMasks[NOTESSELECTED],
-        {showCardsButton.position.x, showCardsButton.position.y, 70, 70},
-        0
+            items,
+            {216, 85 + (activePlayer * 160)},
+            itemsMasks[NOTESSELECTED],
+            {showCardsButton.position.x, showCardsButton.position.y, 70, 70},
+            0
     };
     Button rollDice = {
             guiTextures[TBLUE],
@@ -122,25 +123,20 @@ void Gameplay() {
             {1200, 650, 190, 49},
             0
     };
+    Button changeTurnButton = {
+            guiTextures[TBLUE],
+            {0, 0},
+            {0,94,190, 49},
+            {585, 615, 145, 35},
+            0
+    };
 
     Texture2D PlayerPiece = LoadTexture("../Assets/PLAYERS.png");
 
     redPlayer.piece.texture = PlayerPiece;
-    redPlayer.piece.mask = (Rectangle){0, 0, 15, 17},
-    redPlayer.piece.resize = (Rectangle){620, 465, 15, 17};
-
     bluePlayer.piece.texture = PlayerPiece;
-    bluePlayer.piece.mask = (Rectangle){0, 17, 15, 15};
-    bluePlayer.piece.resize = (Rectangle){638, 465, 15, 15};
-
     greenPlayer.piece.texture = PlayerPiece;
-    greenPlayer.piece.mask = (Rectangle){0, 32,15, 16};
-    greenPlayer.piece.resize = (Rectangle){654, 465, 15, 16};
-
     yellowPlayer.piece.texture = PlayerPiece;
-    yellowPlayer.piece.mask = (Rectangle){0, 48, 15, 16};
-    yellowPlayer.piece.resize = (Rectangle){672, 465, 15, 16};
-
 
     while(!WindowShouldClose())
     {
@@ -155,8 +151,6 @@ void Gameplay() {
         ClearBackground(DARKBROWN);
         mousePoint = GetMousePosition();
         DrawTextureRec(board, (Rectangle) {0, 0, board.width, board.height}, (Vector2) {400, 10}, RAYWHITE);
-
-        //printf("%d, %d", players[activePlayer].piece.mask.x, players[activePlayer].piece.resize.y);
 
         // Draw Characters
         DrawRectangle(35, 35, 300, 138, MAROON);
@@ -196,10 +190,12 @@ void Gameplay() {
         DrawTexturePro(suspectButton.texture, suspectButton.mask, suspectButton.collision, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(accuseButton.texture, accuseButton.mask, accuseButton.collision, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(optionsButton.texture, optionsButton.mask, optionsButton.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(changeTurnButton.texture, changeTurnButton.mask, changeTurnButton.collision, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawText("Tirar dado", 1080, 365, 50, BLACK);
         DrawText("Sospechar", 1080, 465, 50, BLACK);
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
+        DrawText("Pasar Turno", 610, 625, 15, BLACK);
 
         // Draw Name of nearby place
         DrawNameOfPlace(placesNames, pNamesMasks, players[activePlayer]);
@@ -212,7 +208,6 @@ void Gameplay() {
         }
 
         DrawTexturePro(PlayerPiece, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
-        //DrawTexturePro(PlayerPiece, (Rectangle){0, 0, 15, 17}, (Rectangle){620, 465, 15, 17}, (Vector2){0,0}, 0, RAYWHITE);
 
         if (roll > 0)
         {
@@ -262,6 +257,11 @@ void Gameplay() {
                     {
                         optionsButton.status = 1;
                     }
+                    else if (CheckCollisionPointRec(mousePoint, changeTurnButton.collision))
+                    {
+                        changeTurnButton.mask = (Rectangle) {0, 49, 190, 45};
+                        changeTurnButton.status = 1;
+                    }
                 }
             }
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -283,11 +283,21 @@ void Gameplay() {
                     if (optionsButton.status)
                         gameFlags[OPTIONS] = true;
                 }
+                else if (CheckCollisionPointRec(mousePoint, changeTurnButton.collision))
+                {
+                    if (changeTurnButton.status)
+                    {
+                        ChangeTurn(players);
+                    }
+                }
                 showCardsButton.status = 0;
                 rollDice.status = 0;
                 optionsButton.status = 0;
+                changeTurnButton.status = 0;
+                changeTurnButton.mask = (Rectangle) {0,94,190, 49};
                 if (!gameFlags[DICEWASROLLED])
-                    rollDice.mask = (Rectangle) {0,94,190, 49};
+                    rollDice.texture = guiTextures[TBLUE];
+                rollDice.mask = (Rectangle) {0,94,190, 49};
             }
         }
         EndDrawing();
@@ -497,7 +507,7 @@ void Options(Texture2D guiT[], Vector2 mouse)
             {
                 gameFlags[GAMESHOULDCLOSE] = true;
             }
-            // Cancel exit
+                // Cancel exit
             else if (CheckCollisionPointRec(mouse, (Rectangle) {750, 350, 72, 72}))
             {
                 gameFlags[OPENCONFIRMEXIT] = false;
@@ -606,9 +616,9 @@ void Movement(Player player[])
                 player[activePlayer].row -= 1;
                 positionUpdatedY -=  18;
             }
-                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
-                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
-                UpdateRolledNumber(player);
+            player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+            player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+            UpdateRolledNumber(player);
             break;
 
         case KEY_A:
@@ -624,9 +634,9 @@ void Movement(Player player[])
                 positionUpdatedX -= 18;
 
             }
-                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
-                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
-                UpdateRolledNumber(player);
+            player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+            player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+            UpdateRolledNumber(player);
             break;
 
         case KEY_S:
@@ -642,9 +652,9 @@ void Movement(Player player[])
                 player[activePlayer].row += 1;
                 positionUpdatedY += 18;
             }
-                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
-                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
-                UpdateRolledNumber(player);
+            player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+            player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+            UpdateRolledNumber(player);
             break;
 
         case KEY_D:
@@ -660,9 +670,9 @@ void Movement(Player player[])
                 player[activePlayer].column += 1;
                 positionUpdatedX += 18;
             }
-                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
-                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
-                UpdateRolledNumber(player);
+            player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+            player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+            UpdateRolledNumber(player);
             break;
     }
 }
@@ -725,5 +735,20 @@ void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP)
             DrawTexturePro(placeT, placesMasks[5],
                            (Rectangle) {700, 540, placesMasks[5].width, placesMasks[5].height},
                            (Vector2) {0, 0}, 180, RAYWHITE);
+    }
+}
+
+void ChangeTurn(Player players[])
+{
+    activePlayer = (activePlayer + 1) % 4;
+    roll = 0;
+    movementIndex = 2;
+    players[activePlayer].movementLog[0][0] = players[activePlayer].column;
+    players[activePlayer].movementLog[1][0] = players[activePlayer].column;
+    players[activePlayer].movementLog[0][1] = players[activePlayer].row;
+    players[activePlayer].movementLog[1][1] = players[activePlayer].row;
+    for (int i = 0; i < 10; i++)
+    {
+        gameFlags[i] = false;
     }
 }
