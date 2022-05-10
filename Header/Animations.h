@@ -20,7 +20,7 @@ typedef struct sprite_graphics_struct
 Sprite LoadSprite(const char *filename, int frameCount);
 SpriteGraphics LoadSpriteGraphics(const char *filename, int frameCount, float refresh);
 SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g);
-Piece UpdatePosition(Piece current, int x, int y);
+Piece UpdatePosition(Picture current, int x, int y);
 
 
 Sprite LoadSprite(const char *filename, int frameCount)
@@ -57,24 +57,24 @@ SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g)
     return g;
 }
 
-Piece UpdatePosition(Piece current, int x, int y) {
+Piece UpdatePosition(Picture current, int x, int y) {
     float time = 0;
-    int positionUpdatedX = current.piece.resize.x + x * 18;
-    int positionUpdatedY = current.piece.resize.y + y * 18;
+    int positionUpdatedX = current.resize.x + (x * 18);
+    int positionUpdatedY = current.resize.y + (y * 18);
 
-    while (current.piece.resize.y < positionUpdatedY) {
-        if (time >= 0.2) {
-            current.piece.resize.y += y;
-        }
-        DrawTexturePro(current.piece.texture, current.piece.mask, current.piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+    while (current.resize.y < positionUpdatedY) {
+        //if (time >= 0.2) {
+            current.resize.y += y;
+    //    }
+        DrawTexturePro(current.texture, current.mask, current.resize, (Vector2){0,0}, 0, RAYWHITE);
         time += GetFrameTime();
     }
-    while (current.piece.resize.x < positionUpdatedX) {
-        if (time >= 0.2) {
-            current.piece.resize.x += x;
-        }
-        DrawTexturePro(current.piece.texture, current.piece.mask, current.piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+    while (current.resize.x < positionUpdatedX) {
+    //    if (time >= 0.2) {
+            current.resize.x += x;
+    //    }
+        DrawTexturePro(current.texture, current.mask, current.resize, (Vector2){0,0}, 0, RAYWHITE);
         time += GetFrameTime();
     }
-    printf("(%d, %d)", x, y);
+    printf("(%f, %f)", current.resize.x, current.resize.y);
 }

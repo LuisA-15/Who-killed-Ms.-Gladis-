@@ -15,6 +15,7 @@ typedef struct picture_struct {
 typedef struct player_struct {
     int row;
     int column;
+    Picture piece;
     int cards[6];
 } Player;
 
@@ -102,15 +103,10 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer;
-Player bluePlayer;
-Player greenPlayer;
-Player yellowPlayer;
-
-Piece RedPiece;
-Piece BluePiece;
-Piece GreenPiece;
-Piece YellowPiece;
+Player redPlayer = {18, 5};
+Player bluePlayer = {18, 6};
+Player greenPlayer = {18, 7};
+Player yellowPlayer= {18, 8};
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};

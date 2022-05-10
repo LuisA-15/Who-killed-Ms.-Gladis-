@@ -3,7 +3,7 @@ int  ShuffleCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int shuffledCards[]);
 void ShowCards(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
 void Options(Texture2D guiT[], Vector2 mouse);
-void Movement(Player player[], Piece pieces[]);
+void Movement(Player player[]);
 
 
 
@@ -99,24 +99,24 @@ void Gameplay() {
             0
     };
 
-    Player redPlayer = {18, 5};
-    Player bluePlayer = {18, 6};
-    Player greenPlayer = {18, 7};
-    Player yellowPlayer= {18, 8};
-
-    Piece RedPiece = {redPlayer,.piece.mask = {0, 0, 15, 17}, .piece.resize = {620, 465, 15, 17}};
-    Piece BluePiece = {bluePlayer, .piece.mask = {0, 17, 15, 15}, .piece.resize = {638, 465, 15, 15}};
-    Piece GreenPiece = {greenPlayer, .piece.mask = {0, 32,15, 16}, .piece.resize = {654, 465, 15, 16}};
-    Piece YellowPiece = {yellowPlayer, .piece.mask = {0, 48, 15, 16},  .piece.resize = {672, 465, 15, 16}};
-
     Texture2D PlayerPiece = LoadTexture("../Assets/PLAYERS.png");
 
-    RedPiece.piece.texture = PlayerPiece;
-    BluePiece.piece.texture = PlayerPiece;
-    GreenPiece.piece.texture = PlayerPiece;
-    YellowPiece.piece.texture = PlayerPiece;
+    redPlayer.piece.texture = PlayerPiece;
+    redPlayer.piece.mask = (Rectangle){0, 0, 15, 17};
+    redPlayer.piece.resize = (Rectangle){620, 465, 15, 17};
 
-    Piece Pieces[] = {RedPiece, BluePiece, GreenPiece, YellowPiece};
+    bluePlayer.piece.texture = PlayerPiece;
+    bluePlayer.piece.mask = (Rectangle){0, 17, 15, 15};
+    bluePlayer.piece.resize = (Rectangle){638, 465, 15, 15};
+
+    greenPlayer.piece.texture = PlayerPiece;
+    greenPlayer.piece.mask = (Rectangle){0, 32,15, 16};
+    greenPlayer.piece.resize = (Rectangle){654, 465, 15, 16};
+
+    yellowPlayer.piece.texture = PlayerPiece;
+    yellowPlayer.piece.mask = (Rectangle){0, 48, 15, 16};
+    yellowPlayer.piece.resize = (Rectangle){672, 465, 15, 16};
+
 
     while(!WindowShouldClose())
     {
@@ -131,6 +131,8 @@ void Gameplay() {
         ClearBackground(DARKBROWN);
         mousePoint = GetMousePosition();
         DrawTextureRec(board, (Rectangle) {0, 0, board.width, board.height}, (Vector2) {400, 10}, RAYWHITE);
+
+        printf("%d, %d", players[activePlayer].piece.mask.x, players[activePlayer].piece.resize.y);
 
         // Draw Characters
         DrawRectangle(35, 35, 300, 138, MAROON);
@@ -175,7 +177,7 @@ void Gameplay() {
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
 
-        DrawTexturePro(Pieces[activePlayer].piece.texture, Pieces[activePlayer].piece.mask, Pieces[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+        DrawTexturePro(players[activePlayer].piece.texture, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
 
         // Button functions
         if (gameFlags[SHOWCARDS])
@@ -188,7 +190,7 @@ void Gameplay() {
         }
         else
         {
-            Movement(players, Pieces);
+            Movement(players);
 
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
@@ -514,7 +516,7 @@ void Options(Texture2D guiT[], Vector2 mouse)
     }
 }
 
-void Movement(Player player[], Piece pieces[])
+void Movement(Player player[])
 {
     switch (GetKeyPressed()) {
         case KEY_W:
@@ -522,12 +524,12 @@ void Movement(Player player[], Piece pieces[])
             if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] == SHORTCUT)
             {
                 player[activePlayer].row -= 15;
-                UpdatePosition(RedPiece, 0, -15);
+                UpdatePosition(player[activePlayer].piece, 0, -15);
             }
             else if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] != UNABLE)
             {
                 player[activePlayer].row -= 1;
-                UpdatePosition(RedPiece, 0, -1);
+                UpdatePosition(player[activePlayer].piece, 0, -1);
             } break;
 
         case KEY_A:
@@ -535,11 +537,11 @@ void Movement(Player player[], Piece pieces[])
             if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] == SHORTCUT)
             {
                 player[activePlayer].column -= 5;
-                UpdatePosition(RedPiece, -5, 0);
+                UpdatePosition(player[activePlayer].piece, -5, 0);
             }
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] != UNABLE) {
                 player[activePlayer].column -= 1;
-                UpdatePosition(RedPiece, -1, 0);
+                UpdatePosition(player[activePlayer].piece, -1, 0);
             } break;
 
         case KEY_S:
@@ -547,12 +549,12 @@ void Movement(Player player[], Piece pieces[])
             if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] == SHORTCUT)
             {
                 player[activePlayer].row += 15;
-                UpdatePosition(RedPiece, 0, 15);
+                UpdatePosition(player[activePlayer].piece, 0, 15);
             }
             else if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] != UNABLE)
             {
                 player[activePlayer].row += 1;
-                UpdatePosition(RedPiece, 0, 1);
+                UpdatePosition(player[activePlayer].piece, 0, 1);
             } break;
 
         case KEY_D:
@@ -560,12 +562,12 @@ void Movement(Player player[], Piece pieces[])
             if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] == SHORTCUT)
             {
                 player[activePlayer].column += 5;
-                UpdatePosition(RedPiece, 5, 0);
+                UpdatePosition(player[activePlayer].piece, 5, 0);
             }
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] != UNABLE)
             {
                 player[activePlayer].column += 1;
-                UpdatePosition(RedPiece, 1, 0);
+                UpdatePosition(player[activePlayer].piece, 1, 0);
             } break;
-    }DrawTexturePro(pieces[activePlayer].piece.texture, pieces[activePlayer].piece.mask, pieces[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+    }DrawTexturePro(player[activePlayer].piece.texture, player[activePlayer].piece.mask, player[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
 }
