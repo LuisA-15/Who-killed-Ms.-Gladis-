@@ -12,11 +12,27 @@ typedef struct picture_struct {
     Rectangle resize;
 } Picture;
 
+typedef struct sprite_struct
+{
+    Texture2D texture;
+    Rectangle mask;
+    int frameCount;
+}Sprite;
+
+typedef struct sprite_graphics_struct
+{
+    Sprite sprite;
+    int currentFrame;
+    float deltaTime;
+    float refreshRate;
+}SpriteGraphics;
+
 typedef struct player_struct {
     int row;
     int column;
-    Picture piece;
     int cards[6];
+    int movementLog[8][2];
+    Picture piece;
 } Player;
 
 typedef struct accusation_struct {
@@ -75,6 +91,9 @@ enum flags_enum {
     OPTIONS,
     REVEALCARD,
     SUSPECT,
+    DICEISROLLING,
+    DICEWASROLLED,
+    PIECEISMOVING,
     OPENCONFIRMEXIT,
     GAMESHOULDCLOSE,
     GAMESHOULDRESTART
@@ -86,7 +105,7 @@ void RestartValues(int PlayerCount);
 Accusation gameAnswer;
 
 // Flags to change game flow
-bool gameFlags[7] = {};
+bool gameFlags[10] = {};
 
 
 // Player related
@@ -103,13 +122,31 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer = {18, 5};
+Player redPlayer = {18, 5, .piece.mask = (Rectangle){0, 0, 15, 17},
+                    .piece.resize = (Rectangle){620, 465, 15, 17}};
 Player bluePlayer = {18, 6};
 Player greenPlayer = {18, 7};
 Player yellowPlayer= {18, 8};
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};
+
+int movementIndex = 2;
+int positionUpdatedX;
+int positionUpdatedY;
+
+// Dice related
+
+int roll = 0;
+SpriteGraphics rollingDice = {
+        {
+                .mask = {0, 0, 260, 260},
+                16
+        },
+        0,
+        0,
+        0.025
+};
 
 // Music related
 
@@ -187,7 +224,9 @@ void RestartValues(int PlayerCount)
             playersNotes[i][k] = 0;
     }
 
-    for (int i = 0; i < 7; i++)
+    roll = 0;
+
+    for (int i = 0; i < 10; i++)
     {
         gameFlags[i] = false;
     }

@@ -1,27 +1,11 @@
 #include "raylib.h"
 #include "stdio.h"
 
-typedef struct sprite_struct
-{
-    Texture2D texture;
-    Rectangle mask;
-    int frameCount;
-}Sprite;
-
-typedef struct sprite_graphics_struct
-{
-    Sprite sprite;
-    int currentFrame;
-    float deltaTime;
-    float refreshRate;
-}SpriteGraphics;
-
 
 Sprite LoadSprite(const char *filename, int frameCount);
 SpriteGraphics LoadSpriteGraphics(const char *filename, int frameCount, float refresh);
 SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g);
-Piece UpdatePosition(Picture current, int x, int y);
-
+void UpdatePosition(Player players[]);
 
 Sprite LoadSprite(const char *filename, int frameCount)
 {
@@ -57,24 +41,54 @@ SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g)
     return g;
 }
 
-Piece UpdatePosition(Picture current, int x, int y) {
-    float time = 0;
-    int positionUpdatedX = current.resize.x + (x * 18);
-    int positionUpdatedY = current.resize.y + (y * 18);
+void RollDice(float time)
+{
+    if (!roll)
+        roll = GetRandomValue(1, 6);
+    if (time <= 1.5)
+    {
+        DrawTextureRec(rollingDice.sprite.texture, rollingDice.sprite.mask, (Vector2) {1050, 15}, RAYWHITE);
 
-    while (current.resize.y < positionUpdatedY) {
-        //if (time >= 0.2) {
-            current.resize.y += y;
-    //    }
-        DrawTexturePro(current.texture, current.mask, current.resize, (Vector2){0,0}, 0, RAYWHITE);
-        time += GetFrameTime();
+        float elapsed = GetFrameTime();
+        rollingDice.deltaTime += elapsed;
+
+        if(rollingDice.deltaTime >= rollingDice.refreshRate)
+        {
+            rollingDice.deltaTime = 0;
+            rollingDice.currentFrame = (rollingDice.currentFrame + 1) % rollingDice.sprite.frameCount;
+            rollingDice.sprite.mask.x = rollingDice.sprite.mask.width * rollingDice.currentFrame;
+        }
     }
-    while (current.resize.x < positionUpdatedX) {
-    //    if (time >= 0.2) {
-            current.resize.x += x;
-    //    }
-        DrawTexturePro(current.texture, current.mask, current.resize, (Vector2){0,0}, 0, RAYWHITE);
-        time += GetFrameTime();
+    else
+    {
+        gameFlags[DICEISROLLING] = false;
+        gameFlags[DICEWASROLLED] = true;
     }
-    printf("(%f, %f)", current.resize.x, current.resize.y);
+}
+
+void UpdatePosition(Player players[]) {
+    int currentX = players[activePlayer].movementLog[movementIndex - 1][0];
+    int currentY = players[activePlayer].movementLog[movementIndex - 1][1];
+    int pastX = players[activePlayer].movementLog[movementIndex - 2][0];
+    int pastY = players[activePlayer].movementLog[movementIndex - 2][1];
+
+    int deltax = currentX - pastX;
+    int deltay = currentY - pastY;
+
+    if (players[activePlayer].piece.resize.y != positionUpdatedY) {
+        players[activePlayer].piece.resize.y += deltay;
+        DrawTexturePro(players[activePlayer].piece.texture, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+    }
+
+
+    if (players[activePlayer].piece.resize.x != positionUpdatedX) {
+        players[activePlayer].piece.resize.x += deltax;
+        DrawTexturePro(players[activePlayer].piece.texture, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+    }
+
+    if(players[activePlayer].piece.resize.y == positionUpdatedY && players[activePlayer].piece.resize.x == positionUpdatedX)
+    {
+        gameFlags[PIECEISMOVING] = false;
+        DrawTexturePro(players[activePlayer].piece.texture, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+    }
 }

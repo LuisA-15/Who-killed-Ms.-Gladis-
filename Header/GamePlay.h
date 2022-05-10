@@ -4,7 +4,7 @@ void AssignCards(Player players[], int shuffledCards[]);
 void ShowCards(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cardsT);
 void Options(Texture2D guiT[], Vector2 mouse);
 void Movement(Player player[]);
-
+void UpdateRolledNumber(Player players[]);
 
 
 void Gameplay() {
@@ -13,6 +13,7 @@ void Gameplay() {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "Who killed Mrs. Gladys?");
     MaximizeWindow();
+    float time = 0;
     Vector2 mousePoint;
 
     for (int i = 0; i < 2; i++)
@@ -38,6 +39,14 @@ void Gameplay() {
     Rectangle itemsMasks[] = {notesMask, casefileMask, notesSelectedMask};
 
     Texture2D notesSheet = LoadTexture("../Assets/notesSheet.png");
+    Texture2D diceT = LoadTexture("../Assets/dice.png");
+    Texture2D rollingDiceT = LoadTexture("../Assets/rollingDice.png");
+    rollingDice.sprite.texture = rollingDiceT;
+    Picture dice = {
+            diceT,
+            {0, 0, diceT.width / 6, diceT.height},
+            {1100, 45, diceT.width / 12, diceT.height / 2}
+    };
 
     Texture2D profilePics = LoadTexture("../Assets/charProfiles.png");
     Rectangle gladisMask = {0, 0, 64, 64};
@@ -49,6 +58,10 @@ void Gameplay() {
     Rectangle profileMasks[] = {gladisMask, colonelMask, kimMask, boyMask, hildaMask, detectiveMask};
 
     Player players[] = {redPlayer, bluePlayer, greenPlayer, yellowPlayer};
+    players[activePlayer].movementLog[0][0] = players[activePlayer].column;
+    players[activePlayer].movementLog[0][1] = players[activePlayer].row;
+    players[activePlayer].movementLog[1][0] = players[activePlayer].column;
+    players[activePlayer].movementLog[1][1] = players[activePlayer].row;
 
     // Load board collisions and movement available
     CreateBoard();
@@ -102,7 +115,7 @@ void Gameplay() {
     Texture2D PlayerPiece = LoadTexture("../Assets/PLAYERS.png");
 
     redPlayer.piece.texture = PlayerPiece;
-    redPlayer.piece.mask = (Rectangle){0, 0, 15, 17};
+    redPlayer.piece.mask = (Rectangle){0, 0, 15, 17},
     redPlayer.piece.resize = (Rectangle){620, 465, 15, 17};
 
     bluePlayer.piece.texture = PlayerPiece;
@@ -132,7 +145,7 @@ void Gameplay() {
         mousePoint = GetMousePosition();
         DrawTextureRec(board, (Rectangle) {0, 0, board.width, board.height}, (Vector2) {400, 10}, RAYWHITE);
 
-        printf("%d, %d", players[activePlayer].piece.mask.x, players[activePlayer].piece.resize.y);
+        //printf("%d, %d", players[activePlayer].piece.mask.x, players[activePlayer].piece.resize.y);
 
         // Draw Characters
         DrawRectangle(35, 35, 300, 138, MAROON);
@@ -177,12 +190,35 @@ void Gameplay() {
         DrawText("Acusar", 1130, 565, 50, BLACK);
         DrawText("Opciones", 1220, 660, 30, BLACK);
 
-        DrawTexturePro(players[activePlayer].piece.texture, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+        // Enable/Disable buttons
+        if (gameFlags[DICEWASROLLED])
+        {
+            rollDice.texture = guiTextures[TGREY];
+            rollDice.mask = (Rectangle) {0, 98, 190, 45};
+        }
+
+        DrawTexturePro(PlayerPiece, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+        //DrawTexturePro(PlayerPiece, (Rectangle){0, 0, 15, 17}, (Rectangle){620, 465, 15, 17}, (Vector2){0,0}, 0, RAYWHITE);
+
+        if (roll > 0)
+        {
+            dice.mask.x = (dice.texture.width / 6) * (roll - 1);
+            DrawTexturePro(dice.texture, dice.mask, dice.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+        }
 
         // Button functions
         if (gameFlags[SHOWCARDS])
         {
             ShowCards(guiTextures, mousePoint, notesSheet, players, cards);
+        }
+        else if(gameFlags[PIECEISMOVING])
+        {
+            UpdatePosition(players);
+        }
+        else if (gameFlags[DICEISROLLING])
+        {
+            RollDice(time);
+            time += GetFrameTime();
         }
         else if (gameFlags[OPTIONS])
         {
@@ -190,12 +226,23 @@ void Gameplay() {
         }
         else
         {
-            Movement(players);
-
+            if(roll > 0)
+            {
+                Movement(players);
+            }
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-                    if (CheckCollisionPointRec(mousePoint, showCardsButton.collision)) {
+                    if (CheckCollisionPointRec(mousePoint, showCardsButton.collision))
+                    {
                         showCardsButton.status = 1;
+                    }
+                    else if (CheckCollisionPointRec(mousePoint, rollDice.collision))
+                    {
+                        if (!gameFlags[DICEWASROLLED])
+                        {
+                            rollDice.status = 1;
+                            rollDice.mask = (Rectangle) {0, 49, 190, 45};
+                        }
                     }
                     else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                     {
@@ -209,13 +256,24 @@ void Gameplay() {
                     if (showCardsButton.status)
                         gameFlags[SHOWCARDS] = true;
                 }
+                else if (CheckCollisionPointRec(mousePoint, rollDice.collision))
+                {
+                    if (rollDice.status)
+                    {
+                        gameFlags[DICEISROLLING] = true;
+                        time = 0;
+                    }
+                }
                 else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                 {
                     if (optionsButton.status)
                         gameFlags[OPTIONS] = true;
                 }
                 showCardsButton.status = 0;
+                rollDice.status = 0;
                 optionsButton.status = 0;
+                if (!gameFlags[DICEWASROLLED])
+                    rollDice.mask = (Rectangle) {0,94,190, 49};
             }
         }
         EndDrawing();
@@ -518,56 +576,100 @@ void Options(Texture2D guiT[], Vector2 mouse)
 
 void Movement(Player player[])
 {
+    positionUpdatedX = player[activePlayer].piece.resize.x;
+    positionUpdatedY = player[activePlayer].piece.resize.y;
     switch (GetKeyPressed()) {
         case KEY_W:
         case KEY_UP:
+            gameFlags[PIECEISMOVING] = true;
             if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] == SHORTCUT)
             {
-                player[activePlayer].row -= 15;
-                UpdatePosition(player[activePlayer].piece, 0, -15);
+                player[activePlayer].row -= 13;
+                positionUpdatedY -= (13*18);
             }
             else if(boardGrid[player[activePlayer].row - 1][player[activePlayer].column] != UNABLE)
             {
                 player[activePlayer].row -= 1;
-                UpdatePosition(player[activePlayer].piece, 0, -1);
-            } break;
+                positionUpdatedY -=  18;
+            }
+                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+                UpdateRolledNumber(player);
+            break;
 
         case KEY_A:
         case KEY_LEFT:
+            gameFlags[PIECEISMOVING] = true;
             if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] == SHORTCUT)
             {
                 player[activePlayer].column -= 5;
-                UpdatePosition(player[activePlayer].piece, -5, 0);
+                positionUpdatedX -= (18*5);
             }
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column - 1] != UNABLE) {
                 player[activePlayer].column -= 1;
-                UpdatePosition(player[activePlayer].piece, -1, 0);
-            } break;
+                positionUpdatedX -= 18;
+
+            }
+                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+                UpdateRolledNumber(player);
+            break;
 
         case KEY_S:
         case KEY_DOWN:
+            gameFlags[PIECEISMOVING] = true;
             if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] == SHORTCUT)
             {
-                player[activePlayer].row += 15;
-                UpdatePosition(player[activePlayer].piece, 0, 15);
+                player[activePlayer].row += 13;
+                positionUpdatedY += (18*13);
             }
             else if(boardGrid[player[activePlayer].row + 1][player[activePlayer].column] != UNABLE)
             {
                 player[activePlayer].row += 1;
-                UpdatePosition(player[activePlayer].piece, 0, 1);
-            } break;
+                positionUpdatedY += 18;
+            }
+                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+                UpdateRolledNumber(player);
+            break;
 
         case KEY_D:
         case KEY_RIGHT:
+            gameFlags[PIECEISMOVING] = true;
             if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] == SHORTCUT)
             {
                 player[activePlayer].column += 5;
-                UpdatePosition(player[activePlayer].piece, 5, 0);
+                positionUpdatedX += (18*5);
             }
             else if(boardGrid[player[activePlayer].row][player[activePlayer].column + 1] != UNABLE)
             {
                 player[activePlayer].column += 1;
-                UpdatePosition(player[activePlayer].piece, 1, 0);
-            } break;
-    }DrawTexturePro(player[activePlayer].piece.texture, player[activePlayer].piece.mask, player[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
+                positionUpdatedX += 18;
+            }
+                player[activePlayer].movementLog[movementIndex][0] = player[activePlayer].column;
+                player[activePlayer].movementLog[movementIndex][1] = player[activePlayer].row;
+                UpdateRolledNumber(player);
+            break;
+    }
+}
+
+void UpdateRolledNumber(Player players[])
+{
+    /*
+        If the player's new position is the same as the one they had 2 movements ago, it means he took a step back.
+        In which case, the rolled number increases and the movement index decreases by one, as if you didn't move
+        in the first place.
+     */
+
+    if (players[activePlayer].movementLog[movementIndex][0] == players[activePlayer].movementLog[movementIndex - 2][0]
+        && players[activePlayer].movementLog[movementIndex][1] == players[activePlayer].movementLog[movementIndex - 2][1])
+    {
+        roll++;
+        movementIndex--;
+    }
+    else
+    {
+        roll--;
+        movementIndex++;
+    }
 }
