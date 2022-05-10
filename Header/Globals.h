@@ -1,4 +1,3 @@
-#include "stdio.h"
 typedef struct button_struct {
     Texture2D texture;
     Vector2 position;
@@ -32,7 +31,7 @@ typedef struct player_struct {
     int row;
     int column;
     int cards[6];
-    int movementLog[100][2];
+    int movementLog[8][2];
     Picture piece;
 } Player;
 
@@ -191,7 +190,6 @@ void CreateBoard()
         for (int k = 0; k < 4; k++)
         {
             boardGrid[5 + i][5 + k] = SHORTCUT;
-            printf("[%d]", boardGrid[5 + i][5 + k]);
         }
     }
 

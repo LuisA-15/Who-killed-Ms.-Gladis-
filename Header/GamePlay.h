@@ -672,10 +672,4 @@ void UpdateRolledNumber(Player players[])
         roll--;
         movementIndex++;
     }
-
-    for (int i = 0; i < movementIndex; i++)
-    {
-        printf("[%d, %d]\n", players[activePlayer].movementLog[i][0], players[activePlayer].movementLog[i][1]);
-    }
-    printf("\n");
 }

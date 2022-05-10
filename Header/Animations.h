@@ -75,7 +75,6 @@ void UpdatePosition(Player players[]) {
     int deltax = currentX - pastX;
     int deltay = currentY - pastY;
 
-
     if (players[activePlayer].piece.resize.y != positionUpdatedY) {
         players[activePlayer].piece.resize.y += deltay;
         DrawTexturePro(players[activePlayer].piece.texture, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
