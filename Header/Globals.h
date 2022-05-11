@@ -33,7 +33,7 @@ typedef struct player_struct {
     int cards[6];
     int movementLog[8][2];
     Picture piece;
-    int suspicion[3];
+    bool inGame;
 } Player;
 
 typedef struct accusation_struct {
@@ -101,9 +101,10 @@ enum flags_enum {
 };
 
 void CreateBoard();
-void RestartValues(int PlayerCount);
+void RestartValues(Player players[]);
 
 Accusation gameAnswer;
+Accusation suspect = {0, 0, 0};
 
 // Flags to change game flow
 bool gameFlags[10] = {};
@@ -123,11 +124,26 @@ char names[][15] = {
         ""
 };
 
-Player redPlayer = {18, 5, .piece.mask = (Rectangle){0, 0, 15, 17},
-                    .piece.resize = (Rectangle){620, 465, 15, 17}};
-Player bluePlayer = {18, 6};
-Player greenPlayer = {18, 7};
-Player yellowPlayer= {18, 8};
+
+Player redPlayer = {18, 5,
+        .piece.mask = (Rectangle){0, 0, 15, 17},
+        .piece.resize = (Rectangle){620, 465, 15, 17},
+        .inGame = true};
+Player bluePlayer = {18, 6,
+        .piece.mask = (Rectangle){0, 17, 15, 15},
+        .piece.resize = (Rectangle){638, 465, 15, 15},
+        .inGame = true};
+Player greenPlayer = {18, 7,
+        .piece.mask = (Rectangle){0, 32,15, 16},
+        .piece.resize = (Rectangle){654, 465, 15, 16},
+        .inGame = true};
+Player yellowPlayer= {18, 8,
+        .piece.mask = (Rectangle){0, 48, 15, 16},
+        .piece.resize = (Rectangle){672, 465, 15, 16},
+        .inGame = true};
+
+
+
 
 int activePlayer = REDPLAYER; // First player in turn order by default
 int playersNotes[4][18] = {};
@@ -205,27 +221,22 @@ void CreateBoard()
     }
 }
 
-
-void RestartValues(int PlayerCount)
+void RestartValues(Player players[])
 {
-    playerCount = PlayerCount;
+    roll = 0;
     activePlayer = REDPLAYER;
-    redPlayer.row = 18;
-    redPlayer.column = 5;
-    bluePlayer.row = 18;
-    bluePlayer.column = 6;
-    greenPlayer.row = 18;
-    greenPlayer.column = 7;
-    yellowPlayer.row = 18;
-    yellowPlayer.column = 8;
 
-    for (int i = 0; i < 4; i++)
+    for (int i = REDPLAYER; i <= YELLOWPLAYER; i++)
     {
+        players[i].inGame = true;
+        players[i].row = 18;
+        players[i].column = 5 + i;
         for (int k = 0; k < 18; k++)
             playersNotes[i][k] = 0;
+        suspect.suspect = 0;
+        suspect.weapon = 0;
+        suspect.place = 0;
     }
-
-    roll = 0;
 
     for (int i = 0; i < 10; i++)
     {

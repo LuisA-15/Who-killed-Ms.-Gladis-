@@ -67,13 +67,8 @@ void RollDice(float time)
 }
 
 void UpdatePosition(Player players[]) {
-    int currentX = players[activePlayer].movementLog[movementIndex - 1][0];
-    int currentY = players[activePlayer].movementLog[movementIndex - 1][1];
-    int pastX = players[activePlayer].movementLog[movementIndex - 2][0];
-    int pastY = players[activePlayer].movementLog[movementIndex - 2][1];
-
-    int deltax = currentX - pastX;
-    int deltay = currentY - pastY;
+    int deltax = players[activePlayer].movementLog[movementIndex - 1][0] - players[activePlayer].movementLog[movementIndex - 2][0];
+    int deltay = players[activePlayer].movementLog[movementIndex - 1][1] - players[activePlayer].movementLog[movementIndex - 2][1];
 
     if (players[activePlayer].piece.resize.y != positionUpdatedY) {
         players[activePlayer].piece.resize.y += deltay;
