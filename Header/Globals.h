@@ -94,6 +94,7 @@ enum flags_enum {
     SEARCHCARD,
     ADVERTISINGSUSPECT,
     SUSPECT,
+    SUSPECTHAPPENED,
     DICEISROLLING,
     DICEWASROLLED,
     PIECEISMOVING,
@@ -107,16 +108,21 @@ enum flags_enum {
 void CreateBoard();
 void RestartValues(Player players[]);
 
+/*
+    - Game solution
+    - Suspition proposoed by the player in turn
+    - Cards the next player has with the actual suspition being made
+ */
 Accusation gameAnswer;
-Accusation suspect = {0, 0, 0};
+Accusation suspect = {NULLCARD, NULLCARD, NULLCARD};
+Accusation cardsInSuspition = {NULLCARD, NULLCARD, NULLCARD};
 
 // Flags to change game flow
-bool gameFlags[14] = {};
-
+bool gameFlags[15] = {};
 
 // Player related
 
-int playerCount = 0;
+int playerCount = 4;
 int playerId[] = {0, 1, 2, 3};
 char names[][15] = {
         "Mary Poppins",
@@ -172,7 +178,7 @@ SpriteGraphics rollingDice = {
 // Music related
 
 int nowPlaying;
-float musicVolume = 0.0;
+float musicVolume = 0.6;
 Music bgMusic[2];
 char bgMusicNames[][50] = {
         "When the Moons Reaching Out Stars",
@@ -237,12 +243,19 @@ void RestartValues(Player players[])
         players[i].column = 5 + i;
         for (int k = 0; k < 18; k++)
             playersNotes[i][k] = 0;
-        suspect.suspect = 0;
-        suspect.weapon = 0;
-        suspect.place = 0;
     }
+    redPlayer.piece.resize = (Rectangle){620, 465, 15, 17},
+    bluePlayer.piece.resize = (Rectangle){638, 465, 15, 15},
+    greenPlayer.piece.resize = (Rectangle){654, 465, 15, 16},
+    yellowPlayer.piece.resize = (Rectangle){672, 465, 15, 16},
+    suspect.suspect = 0;
+    suspect.weapon = 0;
+    suspect.place = 0;
+    cardsInSuspition.suspect = 0;
+    cardsInSuspition.weapon = 0;
+    cardsInSuspition.place = 0;
 
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 15; i++)
     {
         gameFlags[i] = false;
     }
