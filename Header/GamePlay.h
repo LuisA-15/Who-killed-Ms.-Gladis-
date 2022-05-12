@@ -8,6 +8,7 @@ void UpdateRolledNumber(Player players[]);
 void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP);
 void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cards);
 void ChangeTurn(Player players[]);
+bool IsSuspitionPossible(Player activeP);
 
 
 void Gameplay() {
@@ -106,9 +107,9 @@ void Gameplay() {
             0
     };
     Button suspectButton = {
-            guiTextures[TGREEN],
+            guiTextures[TGREY],
             {1050, 450},
-            {0, 0,190, 49},
+            {0, 98, 190, 45},
             {1050, 450, 380, 90},
             0
     };
@@ -205,15 +206,28 @@ void Gameplay() {
         // Draw Name of nearby place
         DrawNameOfPlace(placesNames, pNamesMasks, players[activePlayer]);
 
+        bool enableSuspition = IsSuspitionPossible(players[activePlayer]);
+
         // Enable/Disable buttons
         if (gameFlags[DICEWASROLLED])
         {
             rollDice.texture = guiTextures[TGREY];
             rollDice.mask = (Rectangle) {0, 98, 190, 45};
         }
+        if (enableSuspition)
+        {
+            suspectButton.texture = guiTextures[TGREEN];
+            suspectButton.mask = (Rectangle) {0, 0,190, 49};
+            if (suspectButton.status)
+                suspectButton.mask = (Rectangle) {0, 192, 190, 45};
+        }
+        else
+        {
+            suspectButton.texture = guiTextures[TGREY];
+            suspectButton.mask = (Rectangle) {0, 98, 190, 45};
+        }
 
         DrawTexturePro(PlayerPiece, players[activePlayer].piece.mask, players[activePlayer].piece.resize, (Vector2){0,0}, 0, RAYWHITE);
-        //DrawTexturePro(PlayerPiece, (Rectangle){0, 0, 15, 17}, (Rectangle){620, 465, 15, 17}, (Vector2){0,0}, 0, RAYWHITE);
 
         if (roll > 0)
         {
@@ -266,8 +280,6 @@ void Gameplay() {
                     else if(CheckCollisionPointRec(mousePoint, suspectButton.collision))
                     {
                         suspectButton.status = 1;
-                        suspectButton.mask = (Rectangle) {0, 192, 190, 49};
-
                     }
                     else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                     {
@@ -298,8 +310,8 @@ void Gameplay() {
                 {
                     if(suspectButton.status)
                     {
-                        gameFlags[SUSPECT] = true;
-
+                        if (enableSuspition)
+                            gameFlags[SUSPECT] = true;
                     }
                 }
                 else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
@@ -319,13 +331,15 @@ void Gameplay() {
                 rollDice.status = 0;
                 optionsButton.status = 0;
                 suspectButton.status = 0;
-                suspectButton.mask = (Rectangle) {0, 0, 190, 45};
+                suspectButton.mask = (Rectangle) {0, 0, 190, 49};
                 changeTurnButton.status = 0;
                 changeTurnButton.mask = (Rectangle) {0,94,190, 49};
 
                 if (!gameFlags[DICEWASROLLED])
+                {
                     rollDice.texture = guiTextures[TBLUE];
-                rollDice.mask = (Rectangle) {0,94,190, 49};
+                    rollDice.mask = (Rectangle) {0,94,190, 49};
+                }
             }
         }
         EndDrawing();
@@ -904,4 +918,20 @@ void ChangeTurn(Player players[])
     suspect.suspect = 0;
     suspect.weapon = 0;
     suspect.place = 0;
+}
+
+bool IsSuspitionPossible(Player activeP)
+{
+    // Make sure suspitions are only made when player is in a place
+    for (int i = 0; i < 3; i++)
+    {
+        for (int k = 0; k < 2; k++)
+        {
+            if (activeP.row == 1 || activeP.row == 20)
+                return true;
+            if (activeP.column == 1 || activeP.column == 12)
+                return true;
+        }
+    }
+    return false;
 }
