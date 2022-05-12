@@ -774,10 +774,12 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
             {0, 0, sheet.width, sheet.height},
             {875, 10, sheet.width, GetScreenHeight() - 21}
     };
+
     Picture cross = {
             guiT[TGREY],
             {120, 478, 18, 18}
     };
+
     Button exit = {
             guiT[TGREY],
             {GetScreenWidth() - 50, GetScreenHeight() - 50},
@@ -795,6 +797,14 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
                              {0, 0},
                              {185, 469, 36, 36},
                              };
+
+    Button advertisment = {
+            guiT[TGREEN],
+            {GetScreenWidth()/3, GetScreenHeight() - 100},
+            {0, 0, 190, 46},
+            {advertisment.position.x, advertisment.position.y, advertisment.mask.width, advertisment.mask.height},
+            0
+    };
 
 
     for(int i = 0; i < 6; i++) {
@@ -886,6 +896,23 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
         }
     }
     DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+
+    // Advertise suspect
+    if (CheckCollisionPointRec(mouse, advertisment.collision))
+    {
+        advertisment.texture = guiT[TYELLOW];
+        advertisment.mask = (Rectangle) {190, 0, 190, 46};
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (CheckCollisionPointRec(mouse, advertisment.collision))
+        {
+            gameFlags[SUSPECT] = false;
+        }
+    }
+    DrawTextureRec(advertisment.texture, advertisment.mask, advertisment.position, RAYWHITE);
+    DrawText("Confirmar", GetScreenWidth()/3 + 23, GetScreenHeight() - 90,  30, BLACK);
+
 }
 
 void ChangeTurn(Player players[])
