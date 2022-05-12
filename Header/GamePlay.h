@@ -1,3 +1,4 @@
+#include "stdio.h"
 void Gameplay();
 int  ShuffleCards(int cardsInUse[18], int index);
 void AssignCards(Player players[], int shuffledCards[]);
@@ -9,7 +10,11 @@ void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP);
 void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cards);
 void ChangeTurn(Player players[]);
 bool IsSuspitionPossible(Player activeP);
-
+void AdvertiseSuspect(Texture2D guiT[], Vector2 mouse, Texture2D cards, Player players[], Texture2D profiles, Rectangle profilesMasks[]);
+int FindPlayerWithSuspects(Player players[]);
+void RevealCardInterface(Player players[], Texture2D guiT[], Texture2D cards, Vector2 mouse);
+void RevealCard(int card);
+Color GetPlayerColor(int player);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -88,16 +93,17 @@ void Gameplay() {
     int allCards[18] = {};
 
     int sortedCards[18] = {gameAnswer.suspect, gameAnswer.weapon, gameAnswer.place};
-    for (int i = 2; i < 18; i++)
+    for (int i = 3; i < 18; i++)
         sortedCards[i] = ShuffleCards(sortedCards, i);
     AssignCards(players, sortedCards);
 
-        Button showCardsButton = {
-        items,
-        {216, 85 + (activePlayer * 160)},
-        itemsMasks[NOTESSELECTED],
-        {showCardsButton.position.x, showCardsButton.position.y, 70, 70},
-        0
+    Button showCardsButton = {
+            items,
+            {216, 85 + (activePlayer * 160)},
+            itemsMasks[NOTESSELECTED],
+            {showCardsButton.position.x, showCardsButton.position.y, 70, 70},
+            0
+
     };
     Button rollDice = {
             guiTextures[TBLUE],
@@ -162,6 +168,11 @@ void Gameplay() {
         DrawRectangle(35, 195, 300, 138, DARKBLUE);
         DrawRectangle(35, 355, 300, 138, DARKGREEN);
         DrawRectangle(35, 515, 300, 138, GOLD);
+        for (int i = REDPLAYER; i <= YELLOWPLAYER; i++)
+        {
+            if (!players[i].inGame)
+                DrawRectangle(35, 35 + (160 * i), 300, 138, GRAY);
+        }
         DrawTexturePro(profilePics, profileMasks[playerId[REDPLAYER]], (Rectangle) {40, 40, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(profilePics, profileMasks[playerId[BLUEPLAYER]], (Rectangle) {40, 200, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(profilePics, profileMasks[playerId[GREENPLAYER]], (Rectangle) {40, 360, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
@@ -214,7 +225,7 @@ void Gameplay() {
             rollDice.texture = guiTextures[TGREY];
             rollDice.mask = (Rectangle) {0, 98, 190, 45};
         }
-        if (enableSuspition)
+        if (enableSuspition && !gameFlags[SUSPECTHAPPENED])
         {
             suspectButton.texture = guiTextures[TGREEN];
             suspectButton.mask = (Rectangle) {0, 0,190, 49};
@@ -257,6 +268,14 @@ void Gameplay() {
         {
             ShowAccusationInterface(guiTextures, mousePoint, notesSheet, players, cards);
         }
+        else if (gameFlags[ADVERTISINGSUSPECT])
+        {
+            AdvertiseSuspect(guiTextures, mousePoint, cards, players, profilePics, profileMasks);
+        }
+        else if (gameFlags[REVEALCARD])
+        {
+            RevealCardInterface(players, guiTextures, cards, mousePoint);
+        }
         else
         {
             if(roll > 0)
@@ -280,6 +299,11 @@ void Gameplay() {
                     else if(CheckCollisionPointRec(mousePoint, suspectButton.collision))
                     {
                         suspectButton.status = 1;
+                    }
+                    else if (CheckCollisionPointRec(mousePoint, accuseButton.collision))
+                    {
+                        accuseButton.status = 1;
+                        accuseButton.mask = (Rectangle) {0, 0, 190, 45};
                     }
                     else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                     {
@@ -310,8 +334,16 @@ void Gameplay() {
                 {
                     if(suspectButton.status)
                     {
-                        if (enableSuspition)
+                        if (enableSuspition && !gameFlags[SUSPECTHAPPENED])
                             gameFlags[SUSPECT] = true;
+                    }
+                }
+                else if (CheckCollisionPointRec(mousePoint, accuseButton.collision))
+                {
+                    if (accuseButton.status)
+                    {
+                        gameFlags[GOINGTOHAPPEN] = true;
+                        gameFlags[SUSPECT] = true;
                     }
                 }
                 else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
@@ -334,6 +366,8 @@ void Gameplay() {
                 suspectButton.mask = (Rectangle) {0, 0, 190, 49};
                 changeTurnButton.status = 0;
                 changeTurnButton.mask = (Rectangle) {0,94,190, 49};
+                accuseButton.status = 0;
+                accuseButton.mask = (Rectangle) {190, 0, 190, 49};
 
                 if (!gameFlags[DICEWASROLLED])
                 {
@@ -355,37 +389,49 @@ void Gameplay() {
 int ShuffleCards(int cardsInUse[], int index)
 {
     int randomCard = GetRandomValue(MARYPOPPINS, GARAGE);
-    for (int i = index; i >= 0; i--)
+    for (int k = index; k >= 0; k--)
     {
-        if (randomCard == cardsInUse[i])
+        if (randomCard == cardsInUse[k])
         {
-            return ShuffleCards(cardsInUse, index);
+            k = index;
+            randomCard = GetRandomValue(MARYPOPPINS, GARAGE);
         }
     }
     return randomCard;
+//    for (int i = index; i >= 0; i--)
+//    {
+//        if (randomCard == cardsInUse[i])
+//        {
+//            randomCard = ShuffleCards(cardsInUse, index);
+//        }
+//    }
+//    return randomCard;
 }
 
 void AssignCards(Player players[], int shuffledCards[])
 {
-    int cardsForEachPlayer = 5;
-    if (playerCount == 4)
-        cardsForEachPlayer = 3;
-
-    for (int player = REDPLAYER; player <= YELLOWPLAYER; player++)
+    if (playerCount == 3)
     {
-        // Assign to each player a part of the shuffled cards
-        for (int i = 0; i < cardsForEachPlayer; i++)
-            players[player].cards[i] = shuffledCards[3 * (player + 1) + i];
-        players[player].cards[5] = NULLCARD;
-    }
-
-    if (playerCount == 4) {
-        int unusedCards[3] = {shuffledCards[15], shuffledCards[16], shuffledCards[17]};
-        for (int player = REDPLAYER; player <= YELLOWPLAYER; player++)
+        for (int i = REDPLAYER; i <= GREENPLAYER; i++)
         {
-            players[player].cards[3] = unusedCards[0];
-            players[player].cards[4] = unusedCards[1];
-            players[player].cards[5] = unusedCards[2];
+            for (int k = 0; k < 5; k++)
+            {
+                players[i].cards[k] = shuffledCards[3 + (5 * i) + k];
+            }
+            players[i].cards[5] = NULLCARD;
+        }
+    }
+    else
+    {
+        for (int i = REDPLAYER; i <= YELLOWPLAYER; i++)
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                players[i].cards[k] = shuffledCards[3 + (3 * i) + k];
+            }
+            players[i].cards[3] = shuffledCards[15];
+            players[i].cards[4] = shuffledCards[16];
+            players[i].cards[5] = shuffledCards[17];
         }
     }
 }
@@ -921,7 +967,11 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
     {
         if (CheckCollisionPointRec(mouse, advertisment.collision))
         {
-            gameFlags[SUSPECT] = false;
+            if (suspect.suspect && suspect.weapon && suspect.place)
+            {
+                gameFlags[SUSPECT] = false;
+                gameFlags[ADVERTISINGSUSPECT] = true;
+            }
         }
     }
     DrawTextureRec(advertisment.texture, advertisment.mask, advertisment.position, RAYWHITE);
@@ -931,20 +981,28 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
 
 void ChangeTurn(Player players[])
 {
-    activePlayer = (activePlayer + 1) % 4;
+    for (int i = REDPLAYER; i <= YELLOWPLAYER; i++)
+    {
+        activePlayer = (activePlayer + 1) % 4;
+        if (players[activePlayer].inGame)
+            break;
+    }
     roll = 0;
     movementIndex = 2;
     players[activePlayer].movementLog[0][0] = players[activePlayer].column;
     players[activePlayer].movementLog[1][0] = players[activePlayer].column;
     players[activePlayer].movementLog[0][1] = players[activePlayer].row;
     players[activePlayer].movementLog[1][1] = players[activePlayer].row;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 14; i++)
     {
         gameFlags[i] = false;
     }
     suspect.suspect = 0;
     suspect.weapon = 0;
     suspect.place = 0;
+    cardsInSuspition.suspect = 0;
+    cardsInSuspition.weapon = 0;
+    cardsInSuspition.place = 0;
 }
 
 bool IsSuspitionPossible(Player activeP)
@@ -961,4 +1019,190 @@ bool IsSuspitionPossible(Player activeP)
         }
     }
     return false;
+}
+
+void AdvertiseSuspect(Texture2D guiT[], Vector2 mouse, Texture2D cards, Player players[], Texture2D profiles, Rectangle profilesMasks[]) {
+    Picture window = {
+            guiT[TGREY],
+            {190, 98, 100, 100},
+            {285, 50, 800, 600}
+    };
+    Button continueButton = {
+            guiT[TBLUE],
+            {0, 0},
+            {0,94,190, 49},
+            {600, 550, 190, 49},
+            0
+    };
+
+    if (CheckCollisionPointRec(mouse, continueButton.collision))
+    {
+        continueButton.texture = guiT[TYELLOW];
+        continueButton.mask = (Rectangle) {190, 0, 190, 46};
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (CheckCollisionPointRec(mouse, continueButton.collision))
+        {
+            if (gameFlags[GOINGTOHAPPEN])
+            {
+                gameFlags[ACCUSATIONHAPPENING] = true;
+                gameFlags[ADVERTISINGSUSPECT] = false;
+            }
+            else if (gameFlags[SUSPECTHAPPENED])
+            {
+                gameFlags[ADVERTISINGSUSPECT] = false;
+                gameFlags[SEARCHCARD] = false;
+            }
+            else if (!gameFlags[SEARCHCARD])
+            {
+                gameFlags[SEARCHCARD] = true;
+            }
+            else
+            {
+                gameFlags[ADVERTISINGSUSPECT] = false;
+                gameFlags[REVEALCARD] = true;
+            }
+        }
+    }
+
+    // Background transparent black screen
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), (Color) {0, 0, 0, 125});
+
+    DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+    if (!gameFlags[SEARCHCARD])
+    {
+        DrawText("¡", 330, 100, 40, BLACK);
+        DrawText(names[playerId[activePlayer]], 340, 100, 40, GetPlayerColor(activePlayer));
+        if (gameFlags[GOINGTOHAPPEN])
+            DrawText(" ha hecho una acusación!", 320, 150, 40, BLACK);
+        else
+            DrawText(" ha hecho una sospecha!", 320, 150, 40, BLACK);
+        for (int i = 0; i < 3; i++)
+        {
+            DrawTexturePro(cards, (Rectangle) {100 * (suspect.suspect - 1), 0, 100, 128}, (Rectangle) {400, 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+            DrawTexturePro(cards, (Rectangle) {100 * (suspect.weapon - 1), 0, 100, 128}, (Rectangle) {600, 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+            DrawTexturePro(cards, (Rectangle) {100 * (suspect.place - 1), 0, 100, 128}, (Rectangle) {800, 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+        }
+    }
+    else
+    {
+        int playerWithSuspects = FindPlayerWithSuspects(players);
+        if (playerWithSuspects != activePlayer)
+        {
+            DrawTexturePro(profiles, profilesMasks[playerId[playerWithSuspects]], (Rectangle) {350, 200, 128, 128}, (Vector2) {0, 0}, 0, RAYWHITE);
+            DrawText(names[playerId[playerWithSuspects]], 350, 350, 35, GetPlayerColor(playerWithSuspects));
+            DrawText("tiene al menos una carta de la sospecha,", 350, 390, 30, BLACK);
+            DrawText("Pasa el dispositivo para que revele una carta", 350, 430, 28, BLACK);
+        }
+        else
+        {
+            gameFlags[SUSPECTHAPPENED] = true;
+            DrawText("Parece que nadie tiene cartas de tu sospecha", 330, 350, 30, BLACK);
+            DrawText("Presiona el botón de acusar si quieres convertir", 330, 390, 30, BLACK);
+            DrawText("tu sospecha en acusación", 330, 430, 30, BLACK);
+        }
+    }
+    DrawTexturePro(continueButton.texture, continueButton.mask, continueButton.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+    DrawText("Continuar", 620, 560, 30, BLACK);
+}
+
+int FindPlayerWithSuspects(Player players[])
+{
+    int playerWithSuspects = (activePlayer + 1) % 4;
+    bool playerHasCards = false;
+
+    for (int i = 0; i < playerCount - 1; i++)
+    {
+        if (players[playerWithSuspects].inGame)
+        {
+            for (int k = 0; k < 3; k++)
+            {
+                if (players[playerWithSuspects].cards[k] == suspect.suspect)
+                {
+                    cardsInSuspition.suspect = players[playerWithSuspects].cards[k];
+                    playerHasCards = true;
+                }
+                if (players[playerWithSuspects].cards[k] == suspect.weapon)
+                {
+                    cardsInSuspition.weapon = players[playerWithSuspects].cards[k];
+                    playerHasCards = true;
+                }
+                if (players[playerWithSuspects].cards[k] == suspect.place)
+                {
+                    cardsInSuspition.place = players[playerWithSuspects].cards[k];
+                    playerHasCards = true;
+                }
+            }
+            if (playerHasCards)
+                return playerWithSuspects;
+            playerWithSuspects = (playerWithSuspects + 1) % 4;
+        }
+    }
+    return activePlayer;
+}
+
+void RevealCardInterface(Player players[], Texture2D guiT[], Texture2D cards, Vector2 mouse)
+{
+    Picture window = {
+            guiT[TGREY],
+            {190, 98, 100, 100},
+            {285, 50, 800, 600}
+    };
+    Button continueButton = {
+            guiT[TBLUE],
+            {0, 0},
+            {0,94,190, 49},
+            {600, 550, 190, 49},
+            0
+    };
+
+    // Background transparent black screen
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), (Color) {0, 0, 0, 125});
+
+    DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+    DrawText("Escoge una carta para revelar", 350, 200, 30, BLACK);
+    DrawText("La carta se añadira al inventario de", 350, 500, 20, BLACK);
+    DrawText(names[playerId[activePlayer]], 350, 530, 20, GetPlayerColor(activePlayer));
+
+    int Cards[] = {cardsInSuspition.suspect, cardsInSuspition.weapon, cardsInSuspition.place};
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (Cards[i] != NULLCARD)
+        {
+            DrawTexturePro(cards, (Rectangle) {100 * (Cards[i] - 1), 0, 100, 128}, (Rectangle) {400 + (200 * i), 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                if (CheckCollisionPointRec(mouse, (Rectangle) {400 + (200 * i), 250, 150, 192}))
+                {
+                    RevealCard(Cards[i]);
+                    gameFlags[REVEALCARD] = false;
+                    ChangeTurn(players);
+                    return;
+                }
+            }
+        }
+
+    }
+
+
+}
+
+void RevealCard(int card)
+{
+    playersNotes[activePlayer][card - 1] = 1;
+}
+
+Color GetPlayerColor(int player)
+{
+    switch (player) {
+        case REDPLAYER: return MAROON;
+        case BLUEPLAYER: return DARKBLUE;
+        case GREENPLAYER: return DARKGREEN;
+        case YELLOWPLAYER: return GOLD;
+        default: return GRAY;
+    }
 }
