@@ -1024,7 +1024,7 @@ bool IsSuspitionPossible(Player activeP)
 
 bool StrongAccusation()
 {
-    if(gameAnswer.suspect == suspect.suspect && gameAnswer.place == suspect.place && gameAnswer.place == suspect.place)
+    if(gameAnswer.suspect == suspect.suspect && gameAnswer.weapon == suspect.weapon && gameAnswer.place == suspect.place)
     {
         return true;
     } else
@@ -1061,7 +1061,8 @@ void StrongAccusationInterface(Texture2D guiT[], Vector2 mouse, Player players[]
 
     DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
     DrawTexturePro(profile, masks[playerId[activePlayer]], (Rectangle) {GetScreenWidth()/2 - 50, 120, 128, 128}, (Vector2) {0, 0}, 0, RAYWHITE);
-    if(StrongAccusation() == true)
+    bool isStrongAccussing = StrongAccusation();
+    if(isStrongAccussing)
     {
         DrawText(names[playerId[activePlayer]], GetScreenWidth()/3 + 60, GetScreenHeight()/2 + 50,  60, playerColor);
         DrawText("YOU WIN!", GetScreenWidth()/3 - 30, GetScreenHeight()/2 - 50,  120, GOLD);
@@ -1086,8 +1087,7 @@ void StrongAccusationInterface(Texture2D guiT[], Vector2 mouse, Player players[]
         {
             gameFlags[ACCUSATIONHAPPENING] = false;
             ChangeTurn(players);
-            if(StrongAccusation() == true)
-            {
+            if(isStrongAccussing) {
                 gameFlags[GAMESHOULDCLOSE] = true;
             }
         }
@@ -1248,7 +1248,7 @@ void RevealCardInterface(Player players[], Texture2D guiT[], Texture2D cards, Ve
     {
         if (Cards[i] != NULLCARD)
         {
-            DrawTexturePro(cards, (Rectangle) {100 * (Cards[i] - 1), 0, 100, 128}, (Rectangle) {400 + (200 * i), 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+            DrawTexturePro(cards, (Rectangle) {100 * (Cards[i] - 1), 0, 100, 128}, (Rectangle) {400 + (200 * i), 250, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 if (CheckCollisionPointRec(mouse, (Rectangle) {400 + (200 * i), 250, 150, 192}))
