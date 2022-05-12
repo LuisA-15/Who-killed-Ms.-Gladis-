@@ -9,7 +9,9 @@ void DrawNameOfPlace(Texture2D placeT, Rectangle placesMasks[], Player activeP);
 void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, Player players[], Texture2D cards);
 void ChangeTurn(Player players[]);
 bool IsSuspitionPossible(Player activeP);
-
+bool StrongAccusation();
+void StrongAccusationInterface(Texture2D guiT[], Vector2 mouse, Player players[], Texture2D profile, Rectangle masks[]);
+void AdvertiseSuspect(Texture2D guiT[], Vector2 mouse, Texture2D cards);
 
 void Gameplay() {
     const int screenWidth = GetScreenWidth();
@@ -143,6 +145,9 @@ void Gameplay() {
     greenPlayer.piece.texture = PlayerPiece;
     yellowPlayer.piece.texture = PlayerPiece;
 
+
+    printf("%d, %d, %d", gameAnswer.place, gameAnswer.suspect, gameAnswer.weapon);
+
     while(!WindowShouldClose())
     {
         if (gameFlags[GAMESHOULDCLOSE])
@@ -257,6 +262,14 @@ void Gameplay() {
         {
             ShowAccusationInterface(guiTextures, mousePoint, notesSheet, players, cards);
         }
+        else if(gameFlags[ACCUSATIONHAPPENING])
+        {
+            StrongAccusationInterface(guiTextures, mousePoint, players, profilePics, profileMasks);
+        }
+        else if (gameFlags[ADVERTISINGSUSPECT])
+        {
+            AdvertiseSuspect(guiTextures, mousePoint, cards);
+        }
         else
         {
             if(roll > 0)
@@ -280,6 +293,11 @@ void Gameplay() {
                     else if(CheckCollisionPointRec(mousePoint, suspectButton.collision))
                     {
                         suspectButton.status = 1;
+                    }
+                    else if(CheckCollisionPointRec(mousePoint, accuseButton.collision))
+                    {
+                        accuseButton.status =  1;
+                        accuseButton.mask = (Rectangle) {0, 0, 190, 45};
                     }
                     else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                     {
@@ -306,12 +324,24 @@ void Gameplay() {
                         time = 0;
                     }
                 }
-                else if (CheckCollisionPointRec(mousePoint, suspectButton.collision))
-                {
-                    if(suspectButton.status)
-                    {
+                else if (CheckCollisionPointRec(mousePoint, suspectButton.collision)) {
+                    if (suspectButton.status) {
                         if (enableSuspition)
                             gameFlags[SUSPECT] = true;
+                    }
+                }
+                else if(CheckCollisionPointRec(mousePoint, accuseButton.collision))
+                {
+                    if(accuseButton.status)
+                    {
+                        if(enableSuspition){
+                            gameFlags[SUSPECT] = true;
+                            gameFlags[GOINGTOHAPPEN] = true;
+
+                        }
+
+
+
                     }
                 }
                 else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
@@ -334,6 +364,8 @@ void Gameplay() {
                 suspectButton.mask = (Rectangle) {0, 0, 190, 49};
                 changeTurnButton.status = 0;
                 changeTurnButton.mask = (Rectangle) {0,94,190, 49};
+                accuseButton.status = 0;
+                accuseButton.mask = (Rectangle) {190, 0, 190, 49};
 
                 if (!gameFlags[DICEWASROLLED])
                 {
@@ -820,7 +852,6 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
             0
     };
 
-
     for(int i = 0; i < 6; i++) {
 
         Rectangle cardsResizeTop = {
@@ -921,7 +952,11 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
     {
         if (CheckCollisionPointRec(mouse, advertisment.collision))
         {
-            gameFlags[SUSPECT] = false;
+            if (suspect.suspect && suspect.weapon && suspect.place)
+            {
+                gameFlags[SUSPECT] = false;
+                gameFlags[ADVERTISINGSUSPECT] = true;
+            }
         }
     }
     DrawTextureRec(advertisment.texture, advertisment.mask, advertisment.position, RAYWHITE);
@@ -938,7 +973,7 @@ void ChangeTurn(Player players[])
     players[activePlayer].movementLog[1][0] = players[activePlayer].column;
     players[activePlayer].movementLog[0][1] = players[activePlayer].row;
     players[activePlayer].movementLog[1][1] = players[activePlayer].row;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 13; i++)
     {
         gameFlags[i] = false;
     }
@@ -961,4 +996,153 @@ bool IsSuspitionPossible(Player activeP)
         }
     }
     return false;
+}
+
+bool StrongAccusation()
+{
+    if(gameAnswer.suspect == suspect.suspect && gameAnswer.place == suspect.place && gameAnswer.place == suspect.place)
+    {
+        return true;
+    } else
+    {
+        return false;
+    }
+}
+
+void StrongAccusationInterface(Texture2D guiT[], Vector2 mouse, Player players[], Texture2D profile, Rectangle masks[])
+{
+    Color playerColor;
+    switch (activePlayer) {
+        case REDPLAYER: playerColor = MAROON; break;
+        case BLUEPLAYER: playerColor = DARKBLUE; break;
+        case GREENPLAYER: playerColor = DARKGREEN; break;
+        case YELLOWPLAYER: playerColor = GOLD; break;
+    }
+
+    Picture cross = {
+            guiT[TGREY],
+            {120, 478, 18, 18}
+    };
+
+    Button exit = {
+            guiT[TGREY],
+            {GetScreenWidth() - 50, GetScreenHeight() - 50},
+            {186, 433, 36, 36},
+            {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
+            0
+    };
+
+    Picture window = {
+            guiT[TGREY],
+            {190, 98, 100, 100},
+            {285, 50, 800, 600}
+    };
+
+    // Background transparent black screen
+    DrawRectangle(0, 0, GetScreenWidth(),  GetScreenHeight(), (Color) {0, 0, 0, 125});
+
+    DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+    DrawTexturePro(profile, masks[playerId[activePlayer]], (Rectangle) {GetScreenWidth()/2 - 50, 120, 128, 128}, (Vector2) {0, 0}, 0, RAYWHITE);
+    if(StrongAccusation() == true)
+    {
+        DrawText(names[playerId[activePlayer]], GetScreenWidth()/3 + 60, GetScreenHeight()/2 + 50,  60, playerColor);
+        DrawText("YOU WIN!", GetScreenWidth()/3 - 30, GetScreenHeight()/2 - 50,  120, GOLD);
+
+    }
+    else
+    {
+        players[activePlayer].inGame = false;
+
+        DrawText(names[playerId[activePlayer]], GetScreenWidth()/3 + 50, GetScreenHeight()/2 + 30,  50, playerColor);
+        DrawText("THE GAME IS OVER FOR YOU!", GetScreenWidth()/3 - 80, GetScreenHeight()/2 - 50,  40, GOLD);
+    }
+
+    if (CheckCollisionPointRec(mouse, exit.collision))
+    {
+        exit.texture = guiT[TRED];
+        exit.mask = (Rectangle) {381, 36, 36, 36};
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (CheckCollisionPointRec(mouse, exit.collision))
+        {
+            gameFlags[ACCUSATIONHAPPENING] = false;
+            if(StrongAccusation() == true)
+            {
+                gameFlags[GAMESHOULDCLOSE] = true;
+            }
+        }
+
+    }
+    DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+}
+
+void AdvertiseSuspect(Texture2D guiT[], Vector2 mouse, Texture2D cards) {
+    Picture window = {
+            guiT[TGREY],
+            {190, 98, 100, 100},
+            {285, 50, 800, 600}
+    };
+    Button continueButton = {
+            guiT[TBLUE],
+            {0, 0},
+            {0,94,190, 49},
+            {600, 550, 190, 49},
+            0
+    };
+
+    if (CheckCollisionPointRec(mouse, continueButton.collision))
+    {
+        continueButton.texture = guiT[TYELLOW];
+        continueButton.mask = (Rectangle) {190, 0, 190, 46};
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (CheckCollisionPointRec(mouse, continueButton.collision))
+        {
+            if (gameFlags[GOINGTOHAPPEN])
+            {
+                gameFlags[ACCUSATIONHAPPENING] = true;
+                gameFlags[ADVERTISINGSUSPECT] = false;
+            }
+            else
+            {
+                gameFlags[SEARCHCARD] = true;
+            }
+        }
+    }
+
+    // Background transparent black screen
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), (Color) {0, 0, 0, 125});
+
+    DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+
+    if (!gameFlags[SEARCHCARD])
+    {
+        Color playerColor;
+        switch (activePlayer) {
+            case REDPLAYER: playerColor = MAROON; break;
+            case BLUEPLAYER: playerColor = DARKBLUE; break;
+            case GREENPLAYER: playerColor = DARKGREEN; break;
+            case YELLOWPLAYER: playerColor = GOLD; break;
+        }
+        DrawText("¡", 330, 100, 40, BLACK);
+        DrawText(names[playerId[activePlayer]], 340, 100, 40, playerColor);
+        if (gameFlags[GOINGTOHAPPEN])
+            DrawText(" ha hecho una acusación!", 320, 150, 40, BLACK);
+        else
+            DrawText(" ha hecho una sospecha!", 320, 150, 40, BLACK);
+        for (int i = 0; i < 3; i++)
+        {
+            DrawTexturePro(cards, (Rectangle) {100 * (suspect.suspect - 1), 0, 100, 128}, (Rectangle) {400, 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+            DrawTexturePro(cards, (Rectangle) {100 * (suspect.weapon - 1), 0, 100, 128}, (Rectangle) {600, 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+            DrawTexturePro(cards, (Rectangle) {100 * (suspect.place - 1), 0, 100, 128}, (Rectangle) {800, 225, 150, 192}, (Vector2) {0, 0}, 0, RAYWHITE);
+        }
+    }
+    else
+    {
+
+    }
+    DrawTexturePro(continueButton.texture, continueButton.mask, continueButton.collision, (Vector2) {0, 0}, 0, RAYWHITE);
+    DrawText("Continuar", 620, 560, 30, BLACK);
 }

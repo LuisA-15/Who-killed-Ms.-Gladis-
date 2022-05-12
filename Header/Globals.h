@@ -91,11 +91,15 @@ enum flags_enum {
     SHOWCARDS,
     OPTIONS,
     REVEALCARD,
+    SEARCHCARD,
+    ADVERTISINGSUSPECT,
     SUSPECT,
     DICEISROLLING,
     DICEWASROLLED,
     PIECEISMOVING,
     OPENCONFIRMEXIT,
+    GOINGTOHAPPEN,
+    ACCUSATIONHAPPENING,
     GAMESHOULDCLOSE,
     GAMESHOULDRESTART
 };
@@ -107,7 +111,7 @@ Accusation gameAnswer;
 Accusation suspect = {0, 0, 0};
 
 // Flags to change game flow
-bool gameFlags[10] = {};
+bool gameFlags[14] = {};
 
 
 // Player related
@@ -238,7 +242,7 @@ void RestartValues(Player players[])
         suspect.place = 0;
     }
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 14; i++)
     {
         gameFlags[i] = false;
     }
