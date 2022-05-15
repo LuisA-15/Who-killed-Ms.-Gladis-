@@ -42,11 +42,6 @@ typedef struct accusation_struct {
     int place;
 } Accusation;
 
-typedef struct player_piece_struct{
-    Player PlayerPiece;
-    Picture piece;
-} Piece;
-
 enum texture_names {
     TRED,
     TBLUE,
@@ -123,7 +118,7 @@ bool gameFlags[15] = {};
 // Player related
 
 int playerCount = 4;
-int playerId[] = {0, 1, 2, 3};
+int playerId[] = {0, 1, 2, 3}; // The id value corresponds to the game character selected
 char names[][15] = {
         "Mary Poppins",
         "Cornelius",
@@ -178,10 +173,10 @@ SpriteGraphics rollingDice = {
 // Music related
 
 int nowPlaying;
-float musicVolume = 0.6;
+float musicVolume = 0.4;
 Music bgMusic[2];
 char bgMusicNames[][50] = {
-        "When the Moons Reaching Out Stars",
+        "When the Moon's Reaching Out The Stars",
         "Air theme"
 };
 char bgMusicPaths[][100] = {

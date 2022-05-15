@@ -15,6 +15,7 @@ void AdvertiseSuspect(Texture2D guiT[], Vector2 mouse, Texture2D cards, Player p
 int FindPlayerWithSuspects(Player players[]);
 void RevealCardInterface(Player players[], Texture2D guiT[], Texture2D cards, Vector2 mouse);
 void RevealCard(int card);
+int GetPlayerPlace(Player player);
 Color GetPlayerColor(int player);
 
 void Gameplay() {
@@ -91,8 +92,6 @@ void Gameplay() {
     gameAnswer.weapon = GetRandomValue(KNIFE, STEAK);
     gameAnswer.place = GetRandomValue(LIVING, GARAGE);
 
-    int allCards[18] = {};
-
     int sortedCards[18] = {gameAnswer.suspect, gameAnswer.weapon, gameAnswer.place};
     for (int i = 3; i < 18; i++)
         sortedCards[i] = ShuffleCards(sortedCards, i);
@@ -149,7 +148,7 @@ void Gameplay() {
     greenPlayer.piece.texture = PlayerPiece;
     yellowPlayer.piece.texture = PlayerPiece;
 
-
+    // Testing function, prints game solution
     printf("%d, %d, %d", gameAnswer.place, gameAnswer.suspect, gameAnswer.weapon);
 
     while(!WindowShouldClose())
@@ -398,6 +397,10 @@ void Gameplay() {
 
 int ShuffleCards(int cardsInUse[], int index)
 {
+    /*
+     * Pull and return a random card that's not already been pulled
+     */
+
     int randomCard = GetRandomValue(MARYPOPPINS, GARAGE);
     for (int k = index; k >= 0; k--)
     {
@@ -868,6 +871,17 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
             0
     };
 
+    Rectangle cardPlace = {
+            20,
+            410,
+            100,
+            128
+    };
+
+    DrawTexturePro(cards, (Rectangle) {1200 + (100 * GetPlayerPlace(players[activePlayer])), 0, 100, 128}, cardPlace, (Vector2) {0, 0}, 0, RAYWHITE);
+    DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55, 545, 36, 36}, (Vector2) {0, 0}, 0,RAYWHITE);
+    suspect.place = GetPlayerPlace(players[activePlayer]);
+
     for(int i = 0; i < 6; i++) {
 
         Rectangle cardsResizeTop = {
@@ -882,22 +896,12 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
                 100,
                 128
         };
-        Rectangle cardsResizeBottom = {
-                20 + (150 * i),
-                410,
-                100,
-                128
-        };
 
         DrawTexturePro(cards, (Rectangle) {100 * i, 0, 100, 128}, cardsResizeTop, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(cards, (Rectangle) {100 * (i + 6), 0, 100, 128}, cardsResizeMid, (Vector2) {0, 0}, 0, RAYWHITE);
-        DrawTexturePro(cards, (Rectangle) {100 * (i + 12), 0, 100, 128}, cardsResizeBottom, (Vector2) {0, 0}, 0,
-                       RAYWHITE);
         DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150 * i), 185, 36, 36}, (Vector2) {0, 0}, 0,
                        RAYWHITE);
         DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150 * i), 365, 36, 36}, (Vector2) {0, 0}, 0,
-                       RAYWHITE);
-        DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150 * i), 545, 36, 36}, (Vector2) {0, 0}, 0,
                        RAYWHITE);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -907,15 +911,10 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
             if (CheckCollisionPointRec(mouse, cardsResizeMid)) {
                 suspect.weapon = i + 7;
             }
-            if (CheckCollisionPointRec(mouse, cardsResizeBottom)) {
-                suspect.place = i + 13;
-            }
         }
         DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55 + (150 * (suspect.suspect - 1)), 185, 36, 36}, (Vector2) {0, 0}, 0,
                        RAYWHITE);
         DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55 + (150 * (suspect.weapon - 7)), 365, 36, 36}, (Vector2) {0, 0}, 0,
-                       RAYWHITE);
-        DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55 + (150 * (suspect.place - 13)), 545, 36, 36}, (Vector2) {0, 0}, 0,
                        RAYWHITE);
     }
 
@@ -1037,11 +1036,6 @@ void StrongAccusationInterface(Texture2D guiT[], Vector2 mouse, Player players[]
 {
     Color playerColor = GetPlayerColor(activePlayer);
 
-    Picture cross = {
-            guiT[TGREY],
-            {120, 478, 18, 18}
-    };
-
     Button exit = {
             guiT[TGREY],
             {GetScreenWidth() - 50, GetScreenHeight() - 50},
@@ -1062,11 +1056,11 @@ void StrongAccusationInterface(Texture2D guiT[], Vector2 mouse, Player players[]
     DrawTexturePro(window.texture, window.mask, window.resize, (Vector2) {0, 0}, 0, RAYWHITE);
     DrawTexturePro(profile, masks[playerId[activePlayer]], (Rectangle) {GetScreenWidth()/2 - 50, 120, 128, 128}, (Vector2) {0, 0}, 0, RAYWHITE);
     bool isStrongAccussing = StrongAccusation();
+
     if(isStrongAccussing)
     {
         DrawText(names[playerId[activePlayer]], GetScreenWidth()/3 + 60, GetScreenHeight()/2 + 50,  60, playerColor);
         DrawText("YOU WIN!", GetScreenWidth()/3 - 30, GetScreenHeight()/2 - 50,  120, GOLD);
-
     }
     else
     {
@@ -1225,13 +1219,6 @@ void RevealCardInterface(Player players[], Texture2D guiT[], Texture2D cards, Ve
             {190, 98, 100, 100},
             {285, 50, 800, 600}
     };
-    Button continueButton = {
-            guiT[TBLUE],
-            {0, 0},
-            {0,94,190, 49},
-            {600, 550, 190, 49},
-            0
-    };
 
     // Background transparent black screen
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), (Color) {0, 0, 0, 125});
@@ -1262,13 +1249,38 @@ void RevealCardInterface(Player players[], Texture2D guiT[], Texture2D cards, Ve
         }
 
     }
-
-
 }
 
 void RevealCard(int card)
 {
     playersNotes[activePlayer][card - 1] = 1;
+}
+
+int GetPlayerPlace(Player player)
+{
+    int place;
+    if (player.column == 1)
+    {
+        if (player.row > 10)
+            place = MLIVING;
+        else
+            place = MLIBRARY;
+    }
+    else if (player.column == 11)
+    {
+        if (player.row > 11)
+            place = MBEDROOM;
+        else
+            place = MKITCHEN;
+    }
+    else
+    {
+        if (player.row == 1)
+            place = MBATHROOM;
+        else
+            place = MGARAGE;
+    }
+    return place - 3;
 }
 
 Color GetPlayerColor(int player)
