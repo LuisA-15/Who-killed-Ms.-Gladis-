@@ -117,7 +117,7 @@ bool gameFlags[15] = {};
 
 // Player related
 
-int playerCount = 4;
+int playerCount = 0;
 int playerId[] = {0, 1, 2, 3}; // The id value corresponds to the game character selected
 char names[][15] = {
         "Mary Poppins",

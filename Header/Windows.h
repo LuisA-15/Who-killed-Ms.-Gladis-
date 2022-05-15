@@ -1,7 +1,7 @@
 void MainWindow();
 void AboutWindow(Texture2D textures[]);
 void ChoosePlayers(Texture2D textures[]);
-void HowtoPlayWindow(Texture2D textures[]);
+void HowtoPlayWindow(Texture2D textures[], Texture2D tutorialT);
 int ChangeCharacter(int namesInUse[4], int actualName);
 
 void MainWindow()
@@ -15,6 +15,8 @@ void MainWindow()
     Texture2D TYellow = LoadTexture("../Assets/yellowSheet.png");
     Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
     Texture2D guiTextures[] = {TRed, TBlue, TGreen, TYellow, TGrey};
+
+    Texture2D tutorialT = LoadTexture("../Assets/redSheet.png");
 
     Button start = {
             guiTextures[TBLUE],
@@ -112,7 +114,7 @@ void MainWindow()
                 if (how.status)
                 {
                     EndDrawing();
-                    HowtoPlayWindow(guiTextures);
+                    HowtoPlayWindow(guiTextures, tutorialT);
                 }
             }
             else if (CheckCollisionPointRec(mousePoint, about.collision))
@@ -398,7 +400,7 @@ int ChangeCharacter(int namesInUse[4], int actualName) {
     return newName;
 }
 
-void HowtoPlayWindow(Texture2D textures[]) {
+void HowtoPlayWindow(Texture2D textures[], Texture2D tutorialT) {
     SetWindowTitle("Cómo Jugar");
     Vector2 mousePoint;
     Button exit = {
@@ -408,13 +410,47 @@ void HowtoPlayWindow(Texture2D textures[]) {
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
             0
     };
+    int tutorialImageCount = 5;
+    int tutorialShowing = 0;
+    Picture tutorialPics = {
+            tutorialT,
+            {(tutorialT.width * tutorialShowing) / tutorialImageCount, 0, 40, tutorialT.height},
+            {0, 0, 100, 200}
+    };
+    Picture switchArrowLeft = {
+            textures[TBLUE],
+            {339, 143, 39, 31},
+            {10, 200, 39, 31}
+    };
+    Picture switchArrowRight = {
+            textures[TBLUE],
+            {378, 143, 39, 31},
+            {555, 200, 39, 31}
+    };
 
     while (!WindowShouldClose())
     {
         mousePoint = GetMousePosition();
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
+        DrawTexturePro(tutorialPics.texture, (Rectangle) {(tutorialT.width * tutorialShowing) / tutorialImageCount, 0, 40, tutorialT.height}, tutorialPics.resize, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+        DrawTexturePro(switchArrowLeft.texture, switchArrowLeft.mask, switchArrowLeft.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(switchArrowRight.texture, switchArrowRight.mask, switchArrowRight.resize , (Vector2) {0, 0}, 0, RAYWHITE);
+
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mousePoint, switchArrowLeft.resize))
+            {
+                if (tutorialShowing > 0)
+                    tutorialShowing--;
+            }
+            if (CheckCollisionPointRec(mousePoint, switchArrowRight.resize))
+            {
+                tutorialShowing = (tutorialShowing + 1) % tutorialImageCount;
+            }
+        }
 
         if (CheckCollisionPointRec(mousePoint, exit.collision)) {
             exit.texture = textures[TRED];
@@ -447,14 +483,41 @@ void AboutWindow(Texture2D textures[])
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
             0
     };
-
+    char aboutText[] =
+            "Who Killed Mrs. Gladys\n\nCreado por:\n- Carolina Arellano\n- Luis Acosta\n\nLink a Github:";
+    char gitLink[] = "https://github.com/LuisA-15/Who-killed-Ms.-Gladis-";
+    Button linkBox = {
+            .collision = {20, 250, 535, 20},
+            .status = 0
+    };
     while (!WindowShouldClose())
     {
         mousePoint = GetMousePosition();
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
         DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
+        DrawText(aboutText, 20, 30, 20, BLACK);
+        DrawText(gitLink, 20, 250, 20, DARKBLUE);
 
+        if (CheckCollisionPointRec(mousePoint, linkBox.collision))
+        {
+            DrawRectangleLines(18, 270, 535, 1, DARKBLUE);
+        }
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            {
+                linkBox.status = 1;
+            }
+        }
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mousePoint, linkBox.collision))
+            {
+                if (linkBox.status)
+                    OpenURL(gitLink);
+            }
+        }
         if (CheckCollisionPointRec(mousePoint, exit.collision)) {
             exit.texture = textures[TRED];
             exit.mask = (Rectangle) {381, 36, 36, 36};
