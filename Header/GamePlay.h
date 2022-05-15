@@ -169,29 +169,37 @@ void Gameplay() {
         DrawRectangle(35, 35, 300, 138, MAROON);
         DrawRectangle(35, 195, 300, 138, DARKBLUE);
         DrawRectangle(35, 355, 300, 138, DARKGREEN);
-        DrawRectangle(35, 515, 300, 138, GOLD);
+        if (playerCount == 4)
+            DrawRectangle(35, 515, 300, 138, GOLD);
         for (int i = REDPLAYER; i <= YELLOWPLAYER; i++)
         {
             if (!players[i].inGame)
+            {
+                if (i == YELLOWPLAYER && playerCount == 3)
+                    break;
                 DrawRectangle(35, 35 + (160 * i), 300, 138, GRAY);
+            }
         }
         DrawTexturePro(profilePics, profileMasks[playerId[REDPLAYER]], (Rectangle) {40, 40, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(profilePics, profileMasks[playerId[BLUEPLAYER]], (Rectangle) {40, 200, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
         DrawTexturePro(profilePics, profileMasks[playerId[GREENPLAYER]], (Rectangle) {40, 360, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
-        DrawTexturePro(profilePics, profileMasks[playerId[YELLOWPLAYER]], (Rectangle) {40, 520, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
         DrawRectangle(173, 40, 157, 30, GRAY);
         DrawRectangle(173, 200, 157, 30, GRAY);
         DrawRectangle(173, 360, 157, 30, GRAY);
-        DrawRectangle(173, 520, 157, 30, GRAY);
         DrawText(names[playerId[REDPLAYER]], 178, 45, 20, BLACK);
         DrawText(names[playerId[BLUEPLAYER]], 178, 205, 20, BLACK);
         DrawText(names[playerId[GREENPLAYER]], 178, 365, 20, BLACK);
-        DrawText(names[playerId[YELLOWPLAYER]], 178, 525, 20, BLACK);
+        if (playerCount == 4)
+        {
+            DrawTexturePro(profilePics, profileMasks[playerId[YELLOWPLAYER]], (Rectangle) {40, 520, 128, 128}, (Vector2) {0, 0}, 0, WHITE);
+            DrawRectangle(173, 520, 157, 30, GRAY);
+            DrawText(names[playerId[YELLOWPLAYER]], 178, 525, 20, BLACK);
+            DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
+        }
 
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 85}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 245}, RAYWHITE);
         DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 405}, RAYWHITE);
-        DrawTextureRec(items, itemsMasks[NOTES], (Vector2) {216, 565}, RAYWHITE);
 
         // Change show cards button depending on active player
         showCardsButton.position.y = 85 + (activePlayer * 160);
@@ -880,7 +888,8 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
 
     DrawTexturePro(cards, (Rectangle) {1200 + (100 * GetPlayerPlace(players[activePlayer])), 0, 100, 128}, cardPlace, (Vector2) {0, 0}, 0, RAYWHITE);
     DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55, 545, 36, 36}, (Vector2) {0, 0}, 0,RAYWHITE);
-    suspect.place = GetPlayerPlace(players[activePlayer]);
+    if (!gameFlags[GOINGTOHAPPEN])
+        suspect.place = GetPlayerPlace(players[activePlayer]);
 
     for(int i = 0; i < 6; i++) {
 
@@ -896,6 +905,12 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
                 100,
                 128
         };
+        Rectangle cardsResizeBottom = {
+                20 + (150 * i),
+                410,
+                100,
+                128
+        };
 
         DrawTexturePro(cards, (Rectangle) {100 * i, 0, 100, 128}, cardsResizeTop, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(cards, (Rectangle) {100 * (i + 6), 0, 100, 128}, cardsResizeMid, (Vector2) {0, 0}, 0, RAYWHITE);
@@ -904,11 +919,14 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
         DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150 * i), 365, 36, 36}, (Vector2) {0, 0}, 0,
                        RAYWHITE);
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            if (CheckCollisionPointRec(mouse, cardsResizeTop)) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, cardsResizeTop))
+            {
                 suspect.suspect = i + 1;
             }
-            if (CheckCollisionPointRec(mouse, cardsResizeMid)) {
+            if (CheckCollisionPointRec(mouse, cardsResizeMid))
+            {
                 suspect.weapon = i + 7;
             }
         }
@@ -916,6 +934,24 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
                        RAYWHITE);
         DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55 + (150 * (suspect.weapon - 7)), 365, 36, 36}, (Vector2) {0, 0}, 0,
                        RAYWHITE);
+
+        if (gameFlags[GOINGTOHAPPEN])
+        {
+            // Let players make an accusation about any place regardless their position
+            DrawTexturePro(cards, (Rectangle) {100 * (i + 12), 0, 100, 128}, cardsResizeBottom, (Vector2) {0, 0}, 0,
+                           RAYWHITE);
+            DrawTexturePro(guiT[TGREY], selectSuspects.mask, (Rectangle) {55 + (150 * i), 545, 36, 36}, (Vector2) {0, 0}, 0,
+                           RAYWHITE);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                if (CheckCollisionPointRec(mouse, cardsResizeBottom))
+                {
+                    suspect.place = i + 13;
+                }
+            }
+            DrawTexturePro(guiT[TGREY], (Rectangle){190, 198, 36, 36}, (Rectangle) {55 + (150 * (suspect.place - 13)), 545, 36, 36}, (Vector2) {0, 0}, 0,
+                           RAYWHITE);
+        }
     }
 
 
@@ -981,12 +1017,11 @@ void ShowAccusationInterface(Texture2D guiT[], Vector2 mouse, Texture2D sheet, P
 
 void ChangeTurn(Player players[])
 {
-    for (int i = REDPLAYER; i <= YELLOWPLAYER; i++)
-    {
+    do {
         activePlayer = (activePlayer + 1) % 4;
-        if (players[activePlayer].inGame)
-            break;
-    }
+        if (activePlayer == YELLOWPLAYER && playerCount == 3)
+            activePlayer = REDPLAYER;
+    } while (!players[activePlayer].inGame);
     roll = 0;
     movementIndex = 2;
     players[activePlayer].movementLog[0][0] = players[activePlayer].column;
