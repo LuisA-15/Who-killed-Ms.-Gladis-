@@ -1,7 +1,4 @@
-#include "raylib.h"
 #include "stdio.h"
-
-
 Sprite LoadSprite(const char *filename, int frameCount);
 SpriteGraphics LoadSpriteGraphics(const char *filename, int frameCount, float refresh);
 SpriteGraphics UpdateSpriteGraphic(SpriteGraphics g);
