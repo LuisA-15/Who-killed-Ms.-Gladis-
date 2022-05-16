@@ -119,9 +119,9 @@ void Gameplay() {
             0
     };
     Button accuseButton = {
-            guiTextures[TRED],
+            guiTextures[TGREY],
             {1050, 550},
-            {190, 0, 190, 49},
+            {0, 98, 190, 45},
             {1050, 550, 380, 90},
             0
     };
@@ -132,7 +132,6 @@ void Gameplay() {
             {1200, 650, 190, 49},
             0
     };
-
     Button changeTurnButton = {
             guiTextures[TBLUE],
             {0, 0},
@@ -235,12 +234,19 @@ void Gameplay() {
             rollDice.texture = guiTextures[TGREY];
             rollDice.mask = (Rectangle) {0, 98, 190, 45};
         }
-        if (enableSuspition && !gameFlags[SUSPECTHAPPENED])
+        if (enableSuspition)
         {
-            suspectButton.texture = guiTextures[TGREEN];
-            suspectButton.mask = (Rectangle) {0, 0,190, 49};
-            if (suspectButton.status)
-                suspectButton.mask = (Rectangle) {0, 192, 190, 45};
+            if (!gameFlags[SUSPECTHAPPENED])
+            {
+                suspectButton.texture = guiTextures[TGREEN];
+                suspectButton.mask = (Rectangle) {0, 0,190, 49};
+                if (suspectButton.status)
+                    suspectButton.mask = (Rectangle) {0, 192, 190, 45};
+            }
+            accuseButton.texture = guiTextures[TRED];
+            accuseButton.mask = (Rectangle) {190, 0, 190, 49};
+            if (accuseButton.status)
+                accuseButton.mask = (Rectangle) {0, 0, 190, 45};
         }
         else
         {
@@ -317,7 +323,6 @@ void Gameplay() {
                     else if(CheckCollisionPointRec(mousePoint, accuseButton.collision))
                     {
                         accuseButton.status =  1;
-                        accuseButton.mask = (Rectangle) {0, 0, 190, 45};
                     }
                     else if (CheckCollisionPointRec(mousePoint, optionsButton.collision))
                     {
@@ -380,11 +385,11 @@ void Gameplay() {
                 rollDice.status = 0;
                 optionsButton.status = 0;
                 suspectButton.status = 0;
-                suspectButton.mask = (Rectangle) {0, 0, 190, 49};
+                suspectButton.mask = (Rectangle) {0, 98, 190, 45};
+                accuseButton.status = 0;
+                accuseButton.mask = (Rectangle) {0, 98, 190, 45};
                 changeTurnButton.status = 0;
                 changeTurnButton.mask = (Rectangle) {0,94,190, 49};
-                accuseButton.status = 0;
-                accuseButton.mask = (Rectangle) {190, 0, 190, 49};
 
                 if (!gameFlags[DICEWASROLLED])
                 {
