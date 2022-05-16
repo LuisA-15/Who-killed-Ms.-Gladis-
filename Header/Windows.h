@@ -16,7 +16,7 @@ void MainWindow()
     Texture2D TGrey = LoadTexture("../Assets/greysheet.png");
     Texture2D guiTextures[] = {TRed, TBlue, TGreen, TYellow, TGrey};
 
-    Texture2D tutorialT = LoadTexture("../Assets/redSheet.png");
+    Texture2D tutorialT = LoadTexture("../Assets/Tutorial.png");
 
     Button start = {
             guiTextures[TBLUE],
@@ -410,12 +410,14 @@ void HowtoPlayWindow(Texture2D textures[], Texture2D tutorialT) {
             {exit.position.x, exit.position.y, exit.mask.width, exit.mask.height},
             0
     };
-    int tutorialImageCount = 5;
+    int tutorialImageCount = 8;
     int tutorialShowing = 0;
+    int NUMTOASCII = 49;
+    char actualPage[2] = {tutorialShowing + NUMTOASCII, '\0'};
     Picture tutorialPics = {
             tutorialT,
-            {(tutorialT.width * tutorialShowing) / tutorialImageCount, 0, 40, tutorialT.height},
-            {0, 0, 100, 200}
+            {(tutorialT.width * tutorialShowing) / tutorialImageCount, 0, tutorialT.width / tutorialImageCount, tutorialT.height},
+            {75, 20, (tutorialT.width / tutorialImageCount) * 0.5, tutorialT.height * 0.5}
     };
     Picture switchArrowLeft = {
             textures[TBLUE],
@@ -430,14 +432,16 @@ void HowtoPlayWindow(Texture2D textures[], Texture2D tutorialT) {
 
     while (!WindowShouldClose())
     {
+        actualPage[0] = tutorialShowing + NUMTOASCII;
         mousePoint = GetMousePosition();
         BeginDrawing();
         ClearBackground((Color) {189, 195, 199});
-        DrawTexturePro(tutorialPics.texture, (Rectangle) {(tutorialT.width * tutorialShowing) / tutorialImageCount, 0, 40, tutorialT.height}, tutorialPics.resize, (Vector2) {0, 0}, 0, RAYWHITE);
+        DrawTexturePro(tutorialPics.texture, (Rectangle) {(tutorialT.width * tutorialShowing) / tutorialImageCount, 0, tutorialT.width / tutorialImageCount, tutorialT.height}, tutorialPics.resize, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTextureRec(exit.texture, exit.mask, exit.position, WHITE);
         DrawTexturePro(switchArrowLeft.texture, switchArrowLeft.mask, switchArrowLeft.resize, (Vector2) {0, 0}, 0, RAYWHITE);
         DrawTexturePro(switchArrowRight.texture, switchArrowRight.mask, switchArrowRight.resize , (Vector2) {0, 0}, 0, RAYWHITE);
-
+        DrawText(actualPage, 25, 450, 15, BLACK);
+        DrawText("/8", 35, 450, 15, BLACK);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
